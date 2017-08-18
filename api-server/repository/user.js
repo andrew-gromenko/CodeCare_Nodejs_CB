@@ -11,32 +11,67 @@ class UserRepository {
 
 		delete userObject.__v;
 		delete userObject._id;
-		delete userObject.createdAt;
+		delete userObject.config;
+		delete userObject.created_at;
+		delete userObject.modified_at;
 		delete userObject.password;
 
 		if (param) {
 			delete userObject[param];
 		}
 
-		// What a story, Mark?
 		return JSON.parse(JSON.stringify(userObject));
 	}
 
-	create({email, username, password}) {
-		return new this.model({email, username, password})
+	_populate(key = 'user') {
+		const populate = {
+			user: {
+				path: 'profile',
+				select: '-_id -__v',
+
+				populate: {
+					path: 'picture',
+				},
+			},
+
+			profile: {
+				path: 'profile',
+				select: '-_id -__v',
+
+				populate: {
+					path: 'categories contacts cover picture',
+					select: 'contacts.city contacts.country',
+				},
+			},
+		};
+
+		return populate[key];
+	}
+
+	create({email, username, password, profile}) {
+		return new this.model({email, username, password, profile})
 			.save()
 			.then(user => this._prepare(user));
 	}
 
-	update(id, options) {
+	remove(id) {
+		return this.update(id, {'$set': {'config.removed': true}});
 	}
 
-	remove(id) {
+	update(id, options) {
+		const instructions = {'new': true, runValidators: true};
+		const query = Object.assign({'$currentDate': {modified_at: true}}, options);
+
+		return this.model
+			.findOneAndUpdate({_id: id}, query, instructions)
+			.populate(this._populate('user'))
+			.then(user => this._prepare(user));
 	}
 
 	verify({email, password}) {
 		return this.model
 			.findOne({email})
+			.populate(this._populate('user'))
 			.then(user => {
 				if (!user) throw new Error('User not found');
 
@@ -55,17 +90,41 @@ class UserRepository {
 
 	all() {
 		return this.model
-			.find({})
+			.find({'config.removed': false})
+			.populate(this._populate('profile'))
 			.then(users => {
-				if (users.length <= 0) throw new Error('Sorry, but DB is empty');
+				if (!(!!users.length)) throw new Error('Sorry, but DB is empty');
 
 				return users.map(user => this._prepare(user));
+			});
+	}
+
+	noPopulate(id) {
+		return this.model
+			.findById(id)
+			.select('followers following')
+			.then(user => {
+				if (!user) throw new Error('User not found');
+
+				return this._prepare(user);
 			});
 	}
 
 	findById(id) {
 		return this.model
 			.findById(id)
+			.populate(this._populate('profile'))
+			.then(user => {
+				if (!user) throw new Error('User not found');
+
+				return this._prepare(user);
+			});
+	}
+
+	findByUsername(username) {
+		return this.model
+			.findOne({username})
+			.populate(this._populate('profile'))
 			.then(user => {
 				if (!user) throw new Error('User not found');
 
@@ -74,51 +133,49 @@ class UserRepository {
 	}
 
 	follow(follower, following) {
-		const userFollower = this.model.findOneAndUpdate({_id: follower}, {$addToSet: {'following': following}}, {
-			'new': true,
-			runValidators: true
-		})
-			.then(user => {
-				if (!user) throw new Error('User not found');
-
-				return this._prepare(user);
-			});
-
-		const userFollowing = this.model.findOneAndUpdate({_id: following}, {$addToSet: {'followers': follower}}, {
-			'new': true,
-			runValidators: true
-		})
-			.then(user => {
-				if (!user) throw new Error('User not found');
-
-				return this._prepare(user);
-			});
-
-		return Promise.all([userFollower, userFollowing]);
+		return Promise.all([
+			this.update(follower, {'$addToSet': {following: following}}),
+			this.update(following, {'$addToSet': {followers: follower}}),
+		]);
 	}
 
 	unfollow(follower, following) {
-		const userFollower = this.model.findOneAndUpdate({_id: follower}, {$pull: {'following': following}}, {
-			'new': true,
-			runValidators: true
-		})
-			.then(user => {
-				if (!user) throw new Error('User not found');
+		return Promise.all([
+			this.update(follower, {'$pull': {following: following}}),
+			this.update(following, {'$pull': {followers: follower}}),
+		]);
+	}
 
-				return this._prepare(user);
-			});
+	projects(userId, projectId, action) {
+		switch (action) {
+			case 'create': {
+				return this.update(userId, {'$addToSet': {projects: projectId}});
+			}
 
-		const userFollowing = this.model.findOneAndUpdate({_id: following}, {$pull: {'followers': follower}}, {
-			'new': true,
-			runValidators: true
-		})
-			.then(user => {
-				if (!user) throw new Error('User not found');
+			case 'remove': {
+				return this.update(userId, {'$pull': {projects: projectId}});
+			}
 
-				return this._prepare(user);
-			});
+			default: {
+				throw new Error(`Action you passed in should be one of ['remove', 'create']. Passed ${action}`);
+			}
+		}
+	}
 
-		return Promise.all([userFollower, userFollowing]);
+	gigs(userId, gigId, action) {
+		switch (action) {
+			case 'create': {
+				return this.update(userId, {'$addToSet': {gigs: gigId}});
+			}
+
+			case 'remove': {
+				return this.update(userId, {'$pull': {gigs: gigId}});
+			}
+
+			default: {
+				throw new Error(`Action you passed in should be one of ['remove', 'create']. Passed ${action}`);
+			}
+		}
 	}
 }
 

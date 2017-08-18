@@ -17,13 +17,13 @@ const UserSchema = new Schema({
 
 	username: {
 		type: String,
+		unique: true,
 		required: true,
 	},
 
-	picture: {
-		type: String,
-		default: '',
-	},
+	gigs: [{
+		type: Schema.ObjectId, ref: 'Gig',
+	}],
 
 	followers: [{
 		type: Schema.ObjectId, ref: 'User',
@@ -33,15 +33,27 @@ const UserSchema = new Schema({
 		type: Schema.ObjectId, ref: 'User',
 	}],
 
-	createdAt: {
+	profile: {
+		type: Schema.ObjectId, ref: 'Profile', required: true,
+	},
+
+	projects: [{
+		type: Schema.ObjectId, ref: 'Project',
+	}],
+
+	config: {
+		removed: {type: Boolean, default: false},
+		'public': {type: Boolean, default: true},
+	},
+
+	created_at: {
 		type: Date,
 		default: Date.now,
 	},
 
-	__v: {
-		type: Number,
-		select: false,
-	}
+	modified_at: {
+		type: Date,
+	},
 });
 
 function encryptPassword(next, done) {
@@ -59,6 +71,7 @@ function encryptPassword(next, done) {
 	next();
 }
 
+// TODO: Prevent the creation of users with a username like 'admin' and so.
 UserSchema
 	.path('email')
 	.validate(value => isEmail(value), 'Invalid email');

@@ -1,15 +1,7 @@
-const _ = require('lodash');
-
-Array.prototype.concatAll = function concatAll() {
-	const result = [];
-	this.forEach(subArray => subArray.forEach(item => result.push(item)));
-	return result;
-};
-
-Array.prototype.unique = function unique() {
-	return this.filter((value, index, self) => self.indexOf(value) === index);
-};
-
+const compact = require('lodash/compact');
+const unique = require('lodash/uniq');
+const xor = require('lodash/xor');
+const head = require('lodash/head');
 
 /**
  * Socket clients storage
@@ -24,67 +16,101 @@ class Clients {
 		return this._clients;
 	}
 
+	findByUser(userId) {
+		const result = this._clients
+			.filter(client => client.user.id === userId);
+
+		return head(result);
+	}
+
+	findBySocket(socketId) {
+		let result = null;
+
+		this._clients
+			.forEach(client => {
+				result = head(client.sockets.filter(socket => socket.id === socketId));
+			});
+
+		return result;
+	}
+
 	jointo(user, socket) {
-		this._clients.push({user, socket});
+		const client = this.findByUser(user.id);
 
-		return this.onlineFriends(socket.id);
+		if (!Object.is(client, null)) {
+			client.sockets.push(socket);
+
+			return [];
+		}
+
+		this._clients.push({user, sockets: [socket]});
+		return this.friendsOnline(user.id);
 	}
 
-	update(users) {
-		const updated = [];
+	update({id, followers, following, username}) {
+		let result = null;
 
-		this._clients = this._clients.map(client => {
-			const filtered = users.filter(updatedUser => updatedUser.id === client.user.id)
-				.map(user => {
-					const newClient = Object.assign({}, {user}, {socket: client.socket});
+		this._clients = this._clients
+			.map(client => {
+				if (client.user.id === id) {
+					const user = {id, followers, following, username};
+					const updated = Object.assign({}, client, {user});
 
-					updated.push(newClient);
+					result = updated;
 
-					return newClient;
-				});
+					return updated;
+				}
 
-			if (filtered.length === 0) {
-				return [client];
-			}
+				return client;
+			});
 
-			return filtered;
-		}).concatAll();
-
-		return updated;
+		return result;
 	}
 
-	online(list) {
-		return list.map(user =>
-			this._clients
-				.filter(client => client.user.id === user.id)
-				.map(client => client.user.id))
-			.concatAll();
-	}
+	// online(list) {
+	// 	return list.map(user =>
+	// 		this._clients
+	// 			.filter(client => client.user.id === user.id)
+	// 			.map(client => client.user.id)
+	// 	).concatAll();
+	// }
 
-	onlineFriends(socketId) {
-		const Client = this._clients.filter(client => client.socket.id === socketId);
+	friendsOnline(userId) {
+		const client = this.findByUser(userId);
 
-		return Client.map(client => {
-			const {user} = client;
+		if (Object.is(client, null)) {
+			return [];
+		}
 
-			const persons = [
-				...user.following,
-				...user.followers
-			].unique();
+		const {user} = client;
+		const persons = xor(user.following, user.followers);
 
-			return persons.map(person =>
-				this._clients.filter(match => person === match.user.id)
-			).concatAll();
-
-		}).concatAll();
+		return persons.map(person => this.findByUser(person));
 	}
 
 	leave(socketId) {
-		const friends = this.onlineFriends(socketId);
+		const {user, sockets} = this.findBySocket(socketId);
 
-		this._clients = this._clients.filter(client => client.socket.id !== socketId);
+		if (sockets.length === 1) {
+			const friends = this.friendsOnline(user.id);
+			this._clients = this._clients.filter(client => client.user.id !== user.id);
 
-		return friends;
+			return friends;
+		}
+
+		this._clients = this._clients
+			.map(client => {
+				if (client.user.id === user.id) {
+					return {
+						user,
+						sockets: sockets.filter(socket => socket.id !== socketId),
+					};
+				}
+
+				return client;
+			});
+
+		return [];
 	}
 }
 

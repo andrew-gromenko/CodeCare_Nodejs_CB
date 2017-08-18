@@ -4,85 +4,76 @@ class SocketService {
 	constructor() {
 		this.clients = new Clients();
 
-		this.emitOnline = this.emitOnline.bind(this);
+		this.emitFriendsOnline = this.emitFriendsOnline.bind(this);
 	}
 
 	subscribe(user, socket) {
 		const handler = (resolve, reject) => {
-			const clientExists = this.clients.list
-				.filter(client => client.user.id === user.id)
-				.map(client => {
-					reject(`User ${client.user.username} ID: ${client.user.id} Socket: ${client.socket.id} already exists.`);
-
-					return client;
-				});
-
-			if (clientExists.length === 0) {
-				const friends = this.clients.jointo(user, socket)
-					.map(this.emitOnline);
-
-				resolve({
+			try {
+				const friends = this.clients.jointo(user, socket);
+				console.log(friends);
+				const response = {
 					message: `Client ${user.username}. ID: ${user.id} SOCKET: ${socket.id} subscribed`,
 					friendsOnline: friends,
-				});
+				};
+
+				resolve(response);
+			} catch (error) {
+				console.log(error);
+				reject(error);
 			}
 		};
 
 		return new Promise(handler);
 	}
 
-	unsubscribe(user, socket) {
+	unsubscribe(socketId) {
 		const handler = (resolve, reject) => {
-			this.clients.list
-				.forEach(client => {
-
-					if (!Object.is(user, null) && user.id === client.user.id) {
-						this.clients.leave(client.socket.id)
-							.forEach(this.emitOnline);
-
-						return resolve(`Client ${user.username}. ID: ${user.id} SOCKET: ${socket.id} unsubscribed`);
-					}
-
-					if (Object.is(user, null) && socket.id === client.socket.id) {
-						this.clients.leave(client.socket.id)
-							.forEach(this.emitOnline);
-
-						return resolve(`Client ${client.user.username}. ID: ${client.user.id} SOCKET: ${socket.id} unsubscribed`);
-					}
-
-					// reject({client, message: `User with SOCKET ${socket.id} not listed as client`});
-				});
+			try {
+				this.clients.leave(socketId)
+					.forEach(this.emitFriendsOnline);
+			} catch (error) {
+				reject(error);
+			}
 		};
 
 		return new Promise(handler);
 	}
 
 	update(users) {
-		this.clients
-			.update(users)
-			.map(client => {
-				client.socket.emit('self_update', client.user);
+		users.forEach(user => {
+			const client = this.clients.update(user);
 
-				return client;
-			})
-			.forEach(this.emitOnline);
+			if (!Object.is(client, null)) {
+				client.sockets
+					.forEach(socket => socket.emit('self_update', client.user));
+
+				this.emitFriendsOnline(client);
+			}
+		});
 	}
 
-	emitOnline(client) {
-		const online = this.clients.onlineFriends(client.socket.id).map(friend => friend.user.id);
+	emitFriendsOnline(client) {
+		const online = this.clients
+			.friendsOnline(client.user.id)
+			.map(friend => {
+				return friend.user.id;
+			});
 
-		client.socket.emit('online_friends', online);
+		client.sockets
+			.forEach(socket => socket.emit('friends_online', online));
 
 		return client.user.id;
 	}
 
 	notify(notification) {
 		const {recipient} = notification;
-		const Client = this.clients.list.filter(client => client.user.id === recipient._id);
+		const client = this.clients.findByUser(recipient._id);
 
-		Client.forEach(client => {
-			client.socket.emit('notification', notification);
-		});
+		if (!Object.is(client, null)) {
+			client.sockets
+				.forEach(socket => socket.emit('notification', notification));
+		}
 	}
 
 }

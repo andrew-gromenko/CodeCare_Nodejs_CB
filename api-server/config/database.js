@@ -8,9 +8,7 @@ mongoose.Promise = Promise;
 
 // Create the database connection
 mongoose.connect(db.url, {
-	user: db.user,
-	password: db.password,
-	autoIndex: process.env.NODE_ENV !== 'production'
+	useMongoClient: true,
 });
 
 // When successfully connected
@@ -36,7 +34,6 @@ process.on('SIGINT', () => {
 	});
 });
 
-require('../schemas/User');
-require('../schemas/Notification');
-require('../schemas/Chat/Room');
-require('../schemas/Chat/Message');
+require('../schemas');
+
+module.exports = mongoose;

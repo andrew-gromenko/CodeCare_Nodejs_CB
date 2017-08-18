@@ -1,6 +1,13 @@
+const user         = require('./user');
+const profile      = require('./profile');
+const room         = require('./room');
+const message      = require('./message');
+const notification = require('./notification');
+
 module.exports = {
-	user: require('./user'),
-	room: require('./room'),
-	message: require('./message'),
-	notification: require('./notification'),
+	user,
+	profile,
+	room,
+	message,
+	notification,
 };

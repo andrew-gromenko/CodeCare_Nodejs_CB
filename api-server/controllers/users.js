@@ -1,65 +1,7 @@
 const repo = require('../repository');
 const User = require('../services/User');
-const Token = require('../services/Token');
 const Chat = require('../services/Chat');
 const Notification = require('../services/Notification');
-
-function create(request, response, next) {
-	const {app, body} = request;
-	const secret = app.get('SECRET_TOKEN');
-
-	repo
-		.user
-		.create(body)
-		.then(user =>
-			response.send({status: 200, data: {user, token: Token.assign(user, secret)}}))
-		.catch(error => {
-			let message = '';
-
-			if (error.code === 11000) {
-				message = 'User already exists';
-			} else {
-				message = error.message;
-			}
-
-			response.send({status: 400, error: {message: `Passed data to create new user not acceptable. ${message}`}});
-		})
-}
-
-function verify(request, response, next) {
-	const {app, body} = request;
-	const {token, email, password} = body;
-	const secret = app.get('SECRET_TOKEN');
-
-	let credentials = {};
-
-	if (!token && !email && !password) {
-		return response.send({status: 401, error: {message: 'Forbidden. Invalid credentials'}});
-	}
-
-	if (token) {
-		const decoded = Token.verify(token, secret);
-
-		if (decoded.error) {
-			return response.send({status: 401, error: {message: 'Forbidden. Invalid token'}});
-		}
-
-		credentials = decoded;
-
-	} else if (email && password) {
-		credentials = {email, password};
-	} else {
-		return response.send({status: 401, error: {message: 'Forbidden. Invalid credentials'}});
-	}
-
-	repo
-		.user
-		.verify(credentials)
-		.then(user =>
-			response.send({status: 200, data: {user, token: Token.assign(user, secret)}}))
-		.catch(error =>
-			response.send({status: 400, error: {message: error.message}}));
-}
 
 function self(request, response, next) {
 	const {id, email, username} = request._user;
@@ -90,8 +32,10 @@ function relationship(request, response, next) {
 					return Notification.follow(_user.id, params.user)
 						.then(() => response.send({status: 200, data: {user}}));
 				})
-				.catch(error =>
-					response.send({status: 400, error: {message: error.message}}));
+				.catch(error => {
+					console.log(error);
+					response.send({status: 400, error: {message: error.message}})
+				});
 
 			break;
 		}
@@ -199,9 +143,7 @@ module.exports = {
 	self,
 	list,
 	find,
-	create,
 	remove,
-	verify,
 	update,
 	relationship,
 	relationships,

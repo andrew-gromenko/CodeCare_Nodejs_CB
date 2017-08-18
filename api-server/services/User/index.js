@@ -1,76 +1,93 @@
-const repo = require('../../repository');
+const Repo = require('../../repository');
 const Socket = require('../Socket/service');
-const Promise = require('bluebird');
+
+/*===== Selectors =====*/
+function selfSelector(user) {
+	return {
+		id: user.id,
+		name: user.profile.name,
+		username: user.username,
+		followers: user.followers.length,
+		following: user.following.length,
+		projects: user.projects.length,
+		gigs: user.gigs.length,
+		picture: user.profile.picture || '',
+	}
+}
+
+function socketSelector(user) {
+	return {
+		id: user.id,
+		followers: user.followers,
+		following: user.following,
+	}
+}
+
+/*===== Service =====*/
+function create({email, password, username}) {
+	return Repo.profile
+		.create(username)
+		.then(profile => {
+			const user = {
+				email,
+				password,
+				username,
+				profile: profile.id,
+			};
+
+			return Repo.user.create(user);
+		});
+}
 
 function self(id) {
-	const User = repo.user.findById(id);
-	const Notifications = repo.notification.find({recipient: id, pristine: false});
-
-	return Promise.all([User, Notifications])
-		.then(result => {
-			const [user, notifications] = result;
-
-			return Object.assign({}, user, {
-				notifications,
-				followers: user.followers.length,
-				following: user.following.length,
-			});
-		});
+	return Repo.user.findById(id)
+		.then(selfSelector);
 }
 
 function list() {
-	return repo.user.all()
-		.then(users => {
-			return users.map(user => Object.assign({}, user, {
-				followers: user.followers.length,
-				following: user.following.length
-			}));
-		});
+	return Repo.user.all()
+		.then(users => users.map(selfSelector));
 }
 
 function follow(follower, following) {
-	const Follower = repo.user.findById(follower);
-	const Following = repo.user.findById(following);
+	return Repo.user.follow(follower, following)
+		.then(users => {
+			const [follower, following] = users;
 
-	return Promise.all([Follower, Following])
-		.then(result => {
-			const [follower, following] = result;
+			Socket.update([
+				socketSelector(follower),
+				socketSelector(following)
+			]);
 
-			return repo.user
-				.follow(follower.id, following.id)
-				.then(users => {
-					const [follower, following] = users;
-
-					Socket.update([follower, following]);
-
-					return follower;
-				});
+			return selfSelector(follower);
 		});
 }
 
 function unfollow(follower, following) {
-	const Follower = repo.user.findById(follower);
-	const Following = repo.user.findById(following);
+	return Repo.user
+		.unfollow(follower, following)
+		.then(users => {
+			const [follower, following] = users;
 
-	return Promise.all([Follower, Following])
-		.then(result => {
-			const [follower, following] = result;
+			Socket.update([
+				socketSelector(follower),
+				socketSelector(following)
+			]);
 
-			return repo.user
-				.unfollow(follower.id, following.id)
-				.then(users => {
-					const [follower, following] = users;
-
-					Socket.update([follower, following]);
-
-					return follower;
-				});
+			return selfSelector(follower);
 		});
+}
+
+function socket(id) {
+	return Repo.user.noPopulate(id)
+		.then(socketSelector);
 }
 
 module.exports = {
 	self,
 	list,
+	socket,
+	create,
 	follow,
 	unfollow,
 };
