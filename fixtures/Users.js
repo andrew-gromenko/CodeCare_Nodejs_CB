@@ -1,7 +1,7 @@
 const User = require('../api-server/services/User');
 const promises = [];
 
-for (let i = 0; i < 25; i++) {
+for (let i = 0; i < 25;) {
 	const user = {
 		email: `user_${i}@gmail.com`,
 		username: `user_${i}`,
@@ -9,6 +9,8 @@ for (let i = 0; i < 25; i++) {
 	};
 
 	promises.push(User.create(user));
+
+	i++
 }
 
 module.exports = promises;

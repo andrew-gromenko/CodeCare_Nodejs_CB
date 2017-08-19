@@ -10,14 +10,11 @@ class SocketService {
 	subscribe(user, socket) {
 		const handler = (resolve, reject) => {
 			try {
-				const friends = this.clients.jointo(user, socket);
-				console.log(friends);
-				const response = {
-					message: `Client ${user.username}. ID: ${user.id} SOCKET: ${socket.id} subscribed`,
-					friendsOnline: friends,
-				};
+				const friends = this.clients
+					.jointo(user, socket)
+					.map(this.emitFriendsOnline);
 
-				resolve(response);
+				resolve(friends);
 			} catch (error) {
 				console.log(error);
 				reject(error);
@@ -30,8 +27,11 @@ class SocketService {
 	unsubscribe(socketId) {
 		const handler = (resolve, reject) => {
 			try {
-				this.clients.leave(socketId)
-					.forEach(this.emitFriendsOnline);
+				const friends = this.clients
+					.leave(socketId)
+					.map(this.emitFriendsOnline);
+
+				resolve(friends);
 			} catch (error) {
 				reject(error);
 			}
@@ -44,7 +44,7 @@ class SocketService {
 		users.forEach(user => {
 			const client = this.clients.update(user);
 
-			if (!Object.is(client, null)) {
+			if (client) {
 				client.sockets
 					.forEach(socket => socket.emit('self_update', client.user));
 
@@ -53,24 +53,23 @@ class SocketService {
 		});
 	}
 
-	emitFriendsOnline(client) {
-		const online = this.clients
-			.friendsOnline(client.user.id)
-			.map(friend => {
-				return friend.user.id;
-			});
+	emitFriendsOnline({user, sockets}) {
+		const friends = this.clients
+			.friends(user)
+			.map(friend => friend.user.id);
 
-		client.sockets
-			.forEach(socket => socket.emit('friends_online', online));
+		sockets
+			.forEach(socket =>
+				socket.emit('friends_online', friends));
 
-		return client.user.id;
+		return user.id;
 	}
 
 	notify(notification) {
 		const {recipient} = notification;
 		const client = this.clients.findByUser(recipient._id);
 
-		if (!Object.is(client, null)) {
+		if (client) {
 			client.sockets
 				.forEach(socket => socket.emit('notification', notification));
 		}

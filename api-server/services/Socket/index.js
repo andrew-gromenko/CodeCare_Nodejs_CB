@@ -9,7 +9,7 @@ function handler(socket) {
 	User.socket(userId)
 		.then(user => {
 			service.subscribe(user, socket)
-				.then(result => socket.emit('subscribe_succeeded', result))
+				.then(friends => socket.emit('subscribe_succeeded', friends))
 				.catch(error => socket.emit('subscribe_failed', error.message));
 		})
 		.catch(error => socket.emit('subscribe_error', error.message));
