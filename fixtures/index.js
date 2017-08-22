@@ -5,6 +5,7 @@ const Promise = require('bluebird');
 require('mongoose').model('User').collection.drop();
 require('mongoose').model('Profile').collection.drop();
 require('mongoose').model('Notification').collection.drop();
+require('mongoose').model('Room').collection.drop();
 
 Promise.all(users)
 	.then(result => {

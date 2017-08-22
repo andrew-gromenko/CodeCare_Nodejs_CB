@@ -2,6 +2,7 @@ const self = require('./self');
 const chat = require('./chat');
 const profile = require('./profile');
 const notifications = require('./notifications');
+const relationships = require('./relationships');
 const workspace = require('./workspace');
 
 module.exports = {
@@ -9,5 +10,6 @@ module.exports = {
 	chat,
 	profile,
 	notifications,
+	relationships,
 	workspace,
 };

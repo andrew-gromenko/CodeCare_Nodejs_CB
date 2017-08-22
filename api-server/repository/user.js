@@ -102,7 +102,6 @@ class UserRepository {
 	noPopulate(id) {
 		return this.model
 			.findById(id)
-			.select('followers following')
 			.then(user => {
 				if (!user) throw new Error('User not found');
 

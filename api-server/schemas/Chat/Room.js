@@ -15,41 +15,6 @@ const RoomSchema = new Schema({
 		type: Date,
 		default: Date.now,
 	},
-
-	__v: {
-		type: Number,
-		select: false,
-	}
 });
-
-function populate(next) {
-	this
-		.populate({
-			path: 'messages',
-
-			populate: {
-				path: 'issuer',
-				select: 'id username picture',
-			},
-		})
-		.populate({
-			path: 'messages',
-
-			populate: {
-				path: 'recipient',
-				select: 'id username picture',
-			},
-		})
-		.populate({
-			path: 'participants',
-			select: 'id username picture',
-		});
-
-	next();
-}
-
-RoomSchema
-	.pre('find', populate)
-	.pre('findOne', populate);
 
 module.exports = mongoose.model('Room', RoomSchema);

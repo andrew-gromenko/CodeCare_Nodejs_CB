@@ -1,28 +1,28 @@
 const router = require('express').Router();
 const controller = require('../../controllers/self');
-// const controller = require('../../controllers/users');
 
 router.route('/')
 	.get(controller.self.self);
 
-// router.route('/relationships')
-// 	.get(controller.relationships);
+router.route('/notifications')
+	.get(controller.notifications.list);
 
-// router.route('/notifications')
-// 	.get(controller.notifications);
-//
-// router.route('/notifications/:id')
-// 	.patch(controller.notificationsUpdate);
-//
-// router.route('/chats')
-// 	.get(controller.chats)
-// 	.post(controller.chatCrate);
-//
-// router.route('/chats/:id')
-// 	.get(controller.chat);
+router.route('/relationships')
+	.get(controller.relationships.list);
 
-// router.route('/chats/:id')
-//     .get(controller.chat)
-//     .post(controller.chatMessage);
+router.route('/chats')
+	.get(controller.chat.list)
+	.post(controller.chat.create);
+
+router.route('/chats/:chat')
+	.get(controller.chat.one);
+
+router.route('/chats/:chat/messages')
+	.get(controller.chat.messageList)
+	.post(controller.chat.messageCreate);
+
+router.route('/chats/:chat/messages/:message')
+	.patch(controller.chat.messageEdit)
+	.delete(controller.chat.messageRemove);
 
 module.exports = router;

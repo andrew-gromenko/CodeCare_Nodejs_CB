@@ -41,22 +41,4 @@ const NotificationSchema = new Schema({
 	}
 });
 
-function populate(next) {
-	this
-		.populate({
-			path: 'issuer',
-			select: 'id username picture',
-		})
-		.populate({
-			path: 'recipient',
-			select: 'id username picture',
-		});
-
-	next();
-}
-
-NotificationSchema
-	.pre('find', populate)
-	.pre('findOne', populate);
-
 module.exports = mongoose.model('Notification', NotificationSchema);

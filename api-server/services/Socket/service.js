@@ -16,7 +16,6 @@ class SocketService {
 
 				resolve(friends);
 			} catch (error) {
-				console.log(error);
 				reject(error);
 			}
 		};
@@ -46,7 +45,7 @@ class SocketService {
 
 			if (client) {
 				client.sockets
-					.forEach(socket => socket.emit('self_update', client.user));
+					.forEach(socket => socket.emit('followers_updated', user));
 
 				this.emitFriendsOnline(client);
 			}
@@ -67,7 +66,7 @@ class SocketService {
 
 	notify(notification) {
 		const {recipient} = notification;
-		const client = this.clients.findByUser(recipient._id);
+		const client = this.clients.findByUser(recipient);
 
 		if (client) {
 			client.sockets

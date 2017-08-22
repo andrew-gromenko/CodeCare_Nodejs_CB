@@ -9,7 +9,7 @@ router
 	.use('/authorize', authorize)
 	.use('/authenticate', authenticate)
 	.use(checkToken)
-	.use('/self', self)
-	.use('/users', users);
+	.use('/users', users)
+	.use('/self', self);
 
 module.exports = router;

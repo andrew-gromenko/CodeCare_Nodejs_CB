@@ -1,27 +1,12 @@
 const Repo = require('../../repository');
-const Socket = require('../Socket/service');
 
 /*===== Selectors =====*/
-function selfSelector(user) {
-	return {
-		id: user.id,
-		name: user.profile.name,
-		username: user.username,
-		followers: user.followers.length,
-		following: user.following.length,
-		projects: user.projects.length,
-		gigs: user.gigs.length,
-		picture: user.profile.picture || '',
-	}
-}
-
-function socketSelector(user) {
-	return {
-		id: user.id,
-		followers: user.followers,
-		following: user.following,
-	}
-}
+const {
+	selfSelector,
+	socketSelector,
+	profileSelector,
+	publicProfileSelector,
+} = require('../selectors');
 
 /*===== Service =====*/
 function create({email, password, username}) {
@@ -44,38 +29,19 @@ function self(id) {
 		.then(selfSelector);
 }
 
+function profile(id) {
+	return Repo.user.findById(id)
+		.then(profileSelector);
+}
+
+function publicProfile(username) {
+	return Repo.user.findByUsername(username)
+		.then(publicProfileSelector);
+}
+
 function list() {
 	return Repo.user.all()
 		.then(users => users.map(selfSelector));
-}
-
-function follow(follower, following) {
-	return Repo.user.follow(follower, following)
-		.then(users => {
-			const [follower, following] = users;
-
-			Socket.update([
-				socketSelector(follower),
-				socketSelector(following)
-			]);
-
-			return selfSelector(follower);
-		});
-}
-
-function unfollow(follower, following) {
-	return Repo.user
-		.unfollow(follower, following)
-		.then(users => {
-			const [follower, following] = users;
-
-			Socket.update([
-				socketSelector(follower),
-				socketSelector(following)
-			]);
-
-			return selfSelector(follower);
-		});
 }
 
 function socket(id) {
@@ -88,6 +54,6 @@ module.exports = {
 	list,
 	socket,
 	create,
-	follow,
-	unfollow,
+	profile,
+	publicProfile,
 };

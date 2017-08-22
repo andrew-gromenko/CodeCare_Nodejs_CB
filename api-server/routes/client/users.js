@@ -7,6 +7,9 @@ router.route('/')
 router.route('/:user')
 	.get(controller.find);
 
+router.route('/:user/profile')
+	.get(controller.profile);
+
 router.route('/:user/relationships')
 	.get(controller.relationships)
 	.post(controller.relationship);

@@ -4,6 +4,11 @@ const Socket = require('../Socket/service');
 // {type, issuer, text, recipient}
 // 'chat', 'workspace', 'common'
 
+function list(userId) {
+	return repo.notification
+		.find({recipient: userId});
+}
+
 function follow(follower, following) {
 	return repo.notification
 		.create({
@@ -14,6 +19,10 @@ function follow(follower, following) {
 		})
 		.then(notification => Socket.notify(notification))
 }
+
+function message() {}
+
+function like() {}
 
 function pristine(notification) {
 	return repo.notification
@@ -26,6 +35,7 @@ function pristineAll(user) {
 }
 
 module.exports = {
+	list,
 	follow,
 	pristine,
 	pristineAll

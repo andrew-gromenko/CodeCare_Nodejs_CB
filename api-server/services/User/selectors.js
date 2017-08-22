@@ -2,10 +2,6 @@ const Self = {
 	id: '',
 	name: '',
 	username: '',
-	followers: 0,
-	following: 0,
-	projects: 0,
-	gigs: 0,
 	picture: '',
 };
 
@@ -34,6 +30,8 @@ const User = {
 	username: '',
 	followers: 0,
 	following: 0,
+	projects: 0,
+	gigs: 0,
 	picture: '',
 	categories: ['', ''],
 	cover: '',
