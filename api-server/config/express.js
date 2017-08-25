@@ -31,6 +31,6 @@ const http = server.listen(api.port, api.host, () => {
 });
 
 /* Sockets startup */
-const sockets = require('./socket')(http);
+const IO = require('./socket')(http);
 
-module.exports = {server, sockets};
+module.exports = {server, IO};

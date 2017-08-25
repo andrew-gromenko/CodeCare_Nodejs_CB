@@ -68,7 +68,7 @@ class Clients {
 				];
 			}
 
-			return this.friends(user);
+			return this.online();
 		} catch(error) {
 			console.log(error);
 		}
@@ -100,37 +100,33 @@ class Clients {
 					];
 				}
 
-				return this.friends(user);
+				return this.online();
 			}
 		} catch (error) {
 			console.log(error);
 		}
 	}
 
-	update(user) {
+	update(client, user) {
 		try {
-			const client = this.findByUser(user.id);
+			const index = findIndex(this.list, client);
 
-			if (client) {
-				const index = findIndex(this.list, client);
-				const {sockets} = client;
-				const updated = {
-					user,
-					sockets,
-				};
+			this.list = [
+				...this.list.slice(0, index),
+				user,
+				...this.list.slice(index + 1),
+			];
 
-				this.list = [
-					...this.list.slice(0, index),
-					updated,
-					...this.list.slice(index + 1),
-				];
-
-				return updated;
-			}
+			return user;
 		} catch (error) {
 			console.log(error);
 		}
 	}
+
+	online() {
+		return this.list.map(client => client.user.id);
+	}
+
 
 	friends({following, followers}, type = 'deep') {
 		try {

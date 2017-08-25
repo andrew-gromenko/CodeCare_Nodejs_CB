@@ -1,4 +1,5 @@
 const Repo = require('../../repository');
+const Promise = require('bluebird');
 
 /*===== Selectors =====*/
 const {
@@ -45,8 +46,15 @@ function list() {
 }
 
 function socket(id) {
-	return Repo.user.noPopulate(id)
-		.then(socketSelector);
+	const user = Repo.user.noPopulate(id);
+	const rooms = Repo.room.noPopulate(id);
+
+	return Promise.all([user, rooms])
+		.then(result => {
+			const [user, rooms] = result;
+
+			return Object.assign({}, socketSelector(user), {rooms});
+		});
 }
 
 module.exports = {

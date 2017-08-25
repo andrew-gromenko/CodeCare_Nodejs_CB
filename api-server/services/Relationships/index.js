@@ -18,7 +18,7 @@ function follow(follower, following) {
 		.then(users => {
 			const [follower, following] = users;
 
-			Socket.update([
+			Socket.updateContacts([
 				socketSelector(follower),
 				socketSelector(following),
 			]);
@@ -32,7 +32,7 @@ function unfollow(follower, following) {
 		.then(users => {
 			const [follower, following] = users;
 
-			Socket.update([
+			Socket.updateContacts([
 				socketSelector(follower),
 				socketSelector(following),
 			]);

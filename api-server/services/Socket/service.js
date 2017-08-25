@@ -1,22 +1,44 @@
 const Clients = require('./clients');
 
+function updateUserContacts(client, followers, following) {
+	const {sockets, user} = client;
+	return {
+		sockets: [...sockets],
+		user: Object.assign({}, user, {
+			followers: [...followers],
+			following: [...following],
+		}),
+	};
+}
+
+function updateUserRooms(client, room, action = 'push') {
+	const {sockets, user} = client;
+	const {rooms} = user;
+
+	const push = room => ([...rooms, room]);
+	const pull = room => rooms.filter(item => item !== room);
+
+	return {
+		sockets: [...sockets],
+		user: Object.assign({}, user, {
+			rooms: action === 'push' ? push(room) : pull(room),
+		}),
+	};
+}
+
 class SocketService {
 	constructor() {
 		this.clients = new Clients();
-
-		this.emitFriendsOnline = this.emitFriendsOnline.bind(this);
 	}
 
 	subscribe(user, socket) {
 		const handler = (resolve, reject) => {
 			try {
-				const friends = this.clients
-					.jointo(user, socket)
-					.map(this.emitFriendsOnline);
+				const online = this.clients.jointo(user, socket);
 
-				resolve(friends);
+				return resolve([user, online]);
 			} catch (error) {
-				reject(error);
+				return reject(error);
 			}
 		};
 
@@ -26,42 +48,51 @@ class SocketService {
 	unsubscribe(socketId) {
 		const handler = (resolve, reject) => {
 			try {
-				const friends = this.clients
-					.leave(socketId)
-					.map(this.emitFriendsOnline);
+				const online = this.clients.leave(socketId);
 
-				resolve(friends);
+				return resolve(online);
 			} catch (error) {
-				reject(error);
+				return reject(error);
 			}
 		};
 
 		return new Promise(handler);
 	}
 
-	update(users) {
-		users.forEach(user => {
-			const client = this.clients.update(user);
+	updateContacts(users) {
+		users.forEach(({id, followers, following}) => {
+			const client = this.clients.findByUser(id);
 
 			if (client) {
-				client.sockets
-					.forEach(socket => socket.emit('followers_updated', user));
+				const updated = updateUserContacts(client, followers, following);
+				this.clients.update(client, updated);
 
-				this.emitFriendsOnline(client);
+				client.sockets
+					.forEach(socket => socket.emit('followers_updated', {id, followers, following}));
 			}
 		});
 	}
 
-	emitFriendsOnline({user, sockets}) {
-		const friends = this.clients
-			.friends(user)
-			.map(friend => friend.user.id);
+	updateRooms(users, action = 'push') {
+		users.forEach(({id, chat}) => {
+			const client = this.clients.findByUser(id);
 
-		sockets
-			.forEach(socket =>
-				socket.emit('friends_online', friends));
+			if (client) {
+				const updated = updateUserRooms(client, chat.id, action);
+				this.clients.update(client, updated);
 
-		return user.id;
+				client.sockets
+					.forEach(socket => {
+						if (action === 'push') {
+							socket.join(chat.id);
+							socket.emit('chat_join', chat);
+						} else {
+							socket.emit('chat_leave', chat);
+							socket.leave(chat.id);
+						}
+					});
+			}
+		})
 	}
 
 	notify(notification) {
@@ -74,6 +105,14 @@ class SocketService {
 		}
 	}
 
+	chatMessage({issuer, room, message}, action = 'push') {
+		const client = this.clients.findByUser(issuer);
+
+		if (client) {
+			client.sockets
+				.forEach(socket => socket.to(room).emit('chat_message', {room, message}));
+		}
+	}
 }
 
 module.exports = new SocketService();

@@ -1,11 +1,11 @@
-const {server, sockets} = require('./config/express');
+const {server, IO} = require('./config/express');
 const routes = require('./routes');
 const Socket = require('./services/Socket');
 const errorHandler = require('./middlewares/errors');
 
 
 /*========================== SOCKETS ==================================*/
-sockets.on('connection', Socket.handler);
+IO.on('connection', Socket.handler);
 /*========================== SOCKETS END ==============================*/
 
 

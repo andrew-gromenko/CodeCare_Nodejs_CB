@@ -84,11 +84,11 @@ class NotificationRepository {
 
 	updateAll(user) {
 		return this.model
-			.updateMany({recipient: user, pristine: false}, {pristine: true}, {'new': true, runValidators: true})
+			.updateMany({recipient: user, pristine: true}, {pristine: false}, {'new': true, runValidators: true})
 			.lean(true);
 	}
 
-	find({recipient, pristine = false}) {
+	find({recipient, pristine = true}) {
 		return this.model
 			.find({recipient, pristine})
 			.populate(this._populate('issuer'))

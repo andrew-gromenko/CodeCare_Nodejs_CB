@@ -8,7 +8,16 @@ class RoomRepository {
 
 	_prepare(room, param) {
 		const result = Object.assign({}, JSON.parse(JSON.stringify(room)), {
-			id: room._id
+			id: room._id,
+			messages: room.messages.map(message => {
+				const result = Object.assign({}, message, {
+					id: message._id
+				});
+
+				delete result._id;
+
+				return result;
+			})
 		});
 
 		delete result.__v;
@@ -28,16 +37,7 @@ class RoomRepository {
 
 			messages: {
 				path: 'messages',
-
-				populate: {
-          path: 'issuer',
-					select: 'id username profile',
-
-					populate: {
-          	path: 'profile',
-						select: 'name picture',
-					},
-        },
+				select: 'id body issuer created_at pristine',
 			},
 		};
 
@@ -55,10 +55,6 @@ class RoomRepository {
 								reject(error);
 							}
 
-							console.log('======= Chat document created =======');
-							console.log(this._prepare(document));
-							console.log('');
-
 							resolve(this._prepare(document));
 						});
 				};
@@ -67,9 +63,19 @@ class RoomRepository {
 			});
 	}
 
+	noPopulate(issuer) {
+		return this.model
+			.find({participants: {'$all': [issuer]}})
+			.select('id')
+			.sort({modified_at: -1})
+			.lean(true)
+			.then(rooms => rooms.map(room => room._id.toString()));
+	}
+
 	all(issuer) {
 		return this.model
 			.find({participants: {'$all': [issuer]}})
+			.sort({modified_at: -1})
 			.populate(this._populate('messages'))
 			.lean(true)
 			.then(rooms => rooms.map(this._prepare));
@@ -89,18 +95,30 @@ class RoomRepository {
 			});
 	}
 
-	find(id) {
+	find(room) {
 		return this.model
-			.findOne({_id: id})
+			.findOne({_id: room})
 			.populate(this._populate('messages'))
 			.lean(true)
 			.then(this._prepare);
 	}
 
-	update(id, {}) {
+	pushMessage(room, message) {
+		const query = {
+			'$addToSet': {messages: message},
+			'$currentDate': {modified_at: true},
+		};
+		return this.model
+			.findOneAndUpdate({_id: room}, query);
 	}
 
-	message(id, message) {
+	pullMessage(room, message) {
+		const query = {
+			'$pull': {messages: message},
+			'$currentDate': {modified_at: true},
+		};
+		return this.model
+			.findOneAndUpdate({_id: room}, query);
 	}
 }
 

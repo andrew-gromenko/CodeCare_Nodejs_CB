@@ -26,7 +26,7 @@ function like() {}
 
 function pristine(notification) {
 	return repo.notification
-		.update(notification, true);
+		.update(notification, false);
 }
 
 function pristineAll(user) {
@@ -38,5 +38,5 @@ module.exports = {
 	list,
 	follow,
 	pristine,
-	pristineAll
+	pristineAll,
 };

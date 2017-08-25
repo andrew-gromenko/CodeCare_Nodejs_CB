@@ -4,34 +4,26 @@ const Schema = mongoose.Schema;
 const MessageSchema = new Schema({
 	issuer: {
 		type: Schema.ObjectId, ref: 'User',
+		required: true,
 	},
 
-	recipient: {
-		type: Schema.ObjectId, ref: 'Room',
-	},
-
-	text: {
+	body: {
 		type: String,
+		required: true,
 	},
 
-	removed: {
-		type: Boolean,
-		default: false,
+	additionally: {
+		type: Schema.ObjectId, ref: 'Media',
 	},
 
 	pristine: {
 		type: Boolean,
-		default: false,
+		default: true,
 	},
 
-	createdAt: {
+	created_at: {
 		type: Date,
 		default: Date.now,
-	},
-
-	__v: {
-		type: Number,
-		select: false,
 	},
 });
 

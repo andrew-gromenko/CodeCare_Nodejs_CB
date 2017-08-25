@@ -42,13 +42,17 @@ function create(request, response, next) {
 function messageCreate(request, response, next) {
 	const {body, params} = request;
 
-	response.send({message: `Should create message.`});
+	Chat.pushMessage(params.room, body)
+		.then(message =>
+			response.send({status: 200, data: {message, room: params.room}}))
+		.catch(error =>
+			response.send({status: 400, error: {message: error.message}}));
 }
 
 function messageList(request, response, next) {
 	const {params} = request;
 
-	response.send({message: `Should show list message.`});
+	response.send({status: 200, data: {message: `Should show list message.`, params}});
 }
 
 function messageEdit(request, response, next) {

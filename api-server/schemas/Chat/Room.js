@@ -11,7 +11,12 @@ const RoomSchema = new Schema({
 		require: true,
 	}],
 
-	createdAt: {
+	modified_at: {
+		type: Date,
+		default: Date.now,
+	},
+
+	created_at: {
 		type: Date,
 		default: Date.now,
 	},

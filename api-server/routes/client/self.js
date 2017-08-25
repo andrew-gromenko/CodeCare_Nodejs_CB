@@ -17,11 +17,11 @@ router.route('/chats')
 router.route('/chats/:chat')
 	.get(controller.chat.one);
 
-router.route('/chats/:chat/messages')
+router.route('/chats/:room/messages')
 	.get(controller.chat.messageList)
 	.post(controller.chat.messageCreate);
 
-router.route('/chats/:chat/messages/:message')
+router.route('/chats/:room/messages/:message')
 	.patch(controller.chat.messageEdit)
 	.delete(controller.chat.messageRemove);
 

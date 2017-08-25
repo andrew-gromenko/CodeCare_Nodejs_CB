@@ -27,7 +27,7 @@ const NotificationSchema = new Schema({
 	pristine: {
 		type: Boolean,
 		required: true,
-		default: false,
+		default: true,
 	},
 
 	createdAt: {
