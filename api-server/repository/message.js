@@ -36,7 +36,6 @@ class MessageRepository {
 						.populate(this._populate(), (error, document) => {
 							if (error) reject(error);
 
-							console.log(this._prepare(document));
 							resolve(this._prepare(document));
 						});
 				};

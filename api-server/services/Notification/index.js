@@ -1,5 +1,6 @@
 const repo = require('../../repository');
 const Socket = require('../Socket/service');
+const Promise = require('bluebird');
 
 // {type, issuer, text, recipient}
 // 'chat', 'workspace', 'common'
@@ -20,6 +21,21 @@ function follow(follower, following) {
 		.then(notification => Socket.notify(notification))
 }
 
+function invite({creator, participants, title}) {
+	const promises = participants.map(member => {
+		return repo.notification
+			.create({
+				type: 'workspace',
+				text: `invite you to join to workspace ${title}`,
+				issuer: creator,
+				recipient: member,
+			})
+	});
+
+	return Promise.all(promises)
+		.then(notifications => notifications.forEach(notification => Socket.notify(notification)));
+}
+
 function message() {}
 
 function like() {}
@@ -37,6 +53,7 @@ function pristineAll(user) {
 module.exports = {
 	list,
 	follow,
+	invite,
 	pristine,
 	pristineAll,
 };

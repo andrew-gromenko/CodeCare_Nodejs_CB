@@ -33,6 +33,7 @@ const GigSchema = new Schema({
 
 	modified_at: {
 		type: Date,
+		default: Date.now,
 	},
 });
 

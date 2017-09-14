@@ -26,19 +26,13 @@ const NotificationSchema = new Schema({
 
 	pristine: {
 		type: Boolean,
-		required: true,
 		default: true,
 	},
 
-	createdAt: {
+	created_at: {
 		type: Date,
 		default: Date.now,
 	},
-
-	__v: {
-		type: Number,
-		select: false,
-	}
 });
 
 module.exports = mongoose.model('Notification', NotificationSchema);

@@ -1,23 +1,23 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-const ProjectSchema = new Schema({
-	title: {
-		type: String,
+const ArgumentSchema = new Schema({
+	issuer: {
+		type: Schema.ObjectId, ref: 'User',
 		required: true,
 	},
 
-	cover: {
-		type: Schema.ObjectId, ref: 'Media',
-	},
-
-	media: {
-		type: Schema.ObjectId, ref: 'Media',
+	body: {
+		type: String,
 	},
 
 	likes: [{
 		type: Schema.ObjectId, ref: 'User',
 	}],
+
+	additionally: {
+		type: Schema.ObjectId, ref: 'Media',
+	},
 
 	comments: [{
 		type: Schema.ObjectId, ref: 'Comment',
@@ -34,4 +34,4 @@ const ProjectSchema = new Schema({
 	},
 });
 
-module.exports = mongoose.model('Project', ProjectSchema);
+module.exports = mongoose.model('Argument', ArgumentSchema);

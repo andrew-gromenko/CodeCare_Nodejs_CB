@@ -4,13 +4,22 @@ const Schema = mongoose.Schema;
 const MediaSchema = new Schema({
 	type: {
 		type: String,
-		enum: ['image', 'video', 'sound'],
+		enum: ['image', 'video', 'audio'],
 		required: true,
 	},
 
 	sources: {
-		small: {type: String},
-		source: {type: String},
+		small: {
+			src: {type: String, required: true},
+			width: {type: Number, required: true},
+			height: {type: Number, required: true},
+		},
+
+		original: {
+			src: {type: String, required: true},
+			width: {type: Number, required: true},
+			height: {type: Number, required: true},
+		},
 	},
 
 	created_at: {
@@ -20,6 +29,7 @@ const MediaSchema = new Schema({
 
 	modified_at: {
 		type: Date,
+		default: Date.now,
 	},
 });
 

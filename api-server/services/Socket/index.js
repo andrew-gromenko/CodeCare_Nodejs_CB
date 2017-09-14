@@ -10,6 +10,7 @@ function handler(socket) {
 
 	const subscribeHandler = ([user, online]) => {
 		user.rooms.forEach(room => socket.join(room));
+		user.workspaces.forEach(workspace => socket.join(workspace));
 		socket.join(DEFAULT_ROOM);
 		socket.emit('subscribe_succeeded', online);
 		socket.to(DEFAULT_ROOM).emit('online', online);

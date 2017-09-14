@@ -48,12 +48,13 @@ function list() {
 function socket(id) {
 	const user = Repo.user.noPopulate(id);
 	const rooms = Repo.room.noPopulate(id);
+	const workspaces = Repo.workspace.noPopulate(id);
 
-	return Promise.all([user, rooms])
+	return Promise.all([user, rooms, workspaces])
 		.then(result => {
-			const [user, rooms] = result;
+			const [user, rooms, workspaces] = result;
 
-			return Object.assign({}, socketSelector(user), {rooms});
+			return Object.assign({}, socketSelector(user), {rooms, workspaces});
 		});
 }
 

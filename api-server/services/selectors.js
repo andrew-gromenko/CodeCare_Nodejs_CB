@@ -4,7 +4,7 @@ function selfSelector(user) {
 		id: user.id,
 		name: user.profile.name,
 		username: user.username,
-		picture: user.profile.picture || '',
+		picture: user.profile.picture,
 	}
 }
 

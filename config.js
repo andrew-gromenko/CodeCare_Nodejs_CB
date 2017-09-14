@@ -29,7 +29,7 @@ const PROD_CONFIG = {
 		port: '8095',
 		secret: 'c3VwZXJjYWxpZnJhZ2lsaXN0aWNleHBpYWxpZG9jaW91cw==',
 		cors: {
-			origin: ['https://clockbeats.com'],
+			origin: ['http://188.166.28.121'],
 			allowedHeaders: ['Authorization', 'Content-Type'],
 			optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
 		}
