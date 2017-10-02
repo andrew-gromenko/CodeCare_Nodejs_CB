@@ -1,6 +1,7 @@
 require('./Chat/Room');
 require('./Chat/Message');
-require('./Workspace/Argement');
+require('./Workspace/Argument');
+require('./Workspace/Invite');
 require('./Workspace/Workspace');
 
 require('./Category');

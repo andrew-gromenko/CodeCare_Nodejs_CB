@@ -51,6 +51,17 @@ class MessageRepository {
 
 	update({body, removed, pristine}) {
 	}
+
+	pristineAll(messages) {
+		return this.model
+			.updateMany({_id: {'$in': messages}}, {'$set': {pristine: false}}, {'new': true, runValidators: true})
+			.then(() => {
+				return this.model
+					.find({_id: {'$in': messages}})
+					.select('_id')
+					.then(messages => messages.map(message => this._prepare(message).id));
+			});
+	}
 }
 
 module.exports = new MessageRepository();

@@ -51,6 +51,16 @@ function pullMessage(roomId, messageId) {
 		});
 }
 
+function pristineMessages(user, roomId, messages) {
+	return repo.message
+		.pristineAll(messages)
+		.then(messages => {
+			Socket.chatMessagePristine({issuer: user, room: roomId, messages});
+
+			return messages;
+		});
+}
+
 module.exports = {
 	create,
 	list,
@@ -58,4 +68,5 @@ module.exports = {
 	findById,
 	pushMessage,
 	pullMessage,
+	pristineMessages,
 };

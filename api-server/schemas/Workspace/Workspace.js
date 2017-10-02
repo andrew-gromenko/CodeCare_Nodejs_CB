@@ -20,10 +20,6 @@ const WorkspaceSchema = new Schema({
 		type: Schema.ObjectId, ref: 'User',
 	}],
 
-	arguments: [{
-		type: Schema.ObjectId, ref: 'Argument',
-	}],
-
 	archived: {
 		type: Boolean,
 		default: false,

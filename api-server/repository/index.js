@@ -4,6 +4,7 @@ const room         = require('./room');
 const message      = require('./message');
 const notification = require('./notification');
 const workspace    = require('./workspace');
+const argument     = require('./argument');
 
 module.exports = {
 	user,
@@ -12,4 +13,5 @@ module.exports = {
 	message,
 	notification,
 	workspace,
+	argument,
 };

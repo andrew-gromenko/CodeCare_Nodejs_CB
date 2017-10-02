@@ -1,7 +1,7 @@
 const {server, IO} = require('./config/express');
+
 const routes = require('./routes');
 const Socket = require('./services/Socket');
-const errorHandler = require('./middlewares/errors');
 
 
 /*========================== SOCKETS ==================================*/

@@ -1,15 +1,16 @@
 const router = require('express').Router();
+
 const authorize = require('./authorize');
 const authenticate = require('./authenticate');
-const checkToken = require('../../middlewares/checkToken');
-const self = require('./self');
-const users = require('./users');
+
+
+const verification = function () {};
+const users = function () {};
+const self = function () {};
 
 router
 	.use('/authorize', authorize)
 	.use('/authenticate', authenticate)
-	.use(checkToken)
 	.use('/users', users)
+	.use(verification)
 	.use('/self', self);
-
-module.exports = router;

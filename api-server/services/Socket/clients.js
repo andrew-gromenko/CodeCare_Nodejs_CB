@@ -1,7 +1,9 @@
-const uniq = require('lodash/uniq');
-const head = require('lodash/head');
-const compact = require('lodash/compact');
-const findIndex = require('lodash/findIndex');
+const {
+	uniq,
+	head,
+	compact,
+	findIndex,
+} = require('lodash');
 
 /**
  * Socket clients storage
@@ -130,8 +132,8 @@ class Clients {
 
 	friends({following, followers}, type = 'deep') {
 		try {
-			const persons = uniq([...following, ...followers]);
-			const friends = persons.map(person => this.findByUser(person));
+			const friends = uniq([...following, ...followers])
+				.map(person => this.findByUser(person));
 
 			return compact(friends);
 		} catch (error) {

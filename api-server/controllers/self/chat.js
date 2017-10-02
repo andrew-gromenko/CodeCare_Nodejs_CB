@@ -3,7 +3,7 @@ const Chat = require('../../services/Chat/index');
 function one(request, response, next) {
 	const {params} = request;
 
-	Chat.findById(params.chat)
+	Chat.findById(params.room)
 		.then(chat =>
 			response.send({status: 200, data: {chat}}))
 		.catch(error =>
@@ -67,6 +67,16 @@ function messageRemove(request, response, next) {
 	response.send({message: `Should remove message.`});
 }
 
+function messagePristine(request, response, next) {
+	const {_user, body, params} = request;
+
+	Chat.pristineMessages(_user.id, params.room, body.messages)
+		.then(messages =>
+			response.send({status: 200, data: {messages, room: params.room}}))
+		.catch(error =>
+			response.send(error));
+}
+
 module.exports = {
 	one,
 	list,
@@ -75,4 +85,5 @@ module.exports = {
 	messageList,
 	messageEdit,
 	messageRemove,
+	messagePristine,
 };

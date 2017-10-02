@@ -1,51 +1,68 @@
-const Repo = require('../../repository');
-const Promise = require('bluebird');
-const Notification = require('../Notification');
-
-function list(userId) {
-	return Repo.workspace
-		.all(userId);
-}
-
-function detail(workspace) {
-	return Repo.workspace
-		.one(workspace);
-}
-
-
-// TODO: Create socket notification to all participants
-
-function create({creator, title, description, start, end, participants}) {
-	return Repo.workspace
-		.create({creator, title, description, start, end, participants})
-		.then(workspace => {
-			// TODO: should add to workspace only if user accept invitation
-			// should pass workspace and participant separately
-			Notification.invite(workspace);
-
-			return workspace;
-		});
-}
-
-function comment() {}
-
-function archive(workspace, action = 'archive') {
-	const archive = action === 'archive';
-
-	return Repo.workspace
-		.archive(workspace, archive);
-}
-
-function participants(workspace, participants, action) {
-	return Repo.workspace
-		.participants({workspace, participants}, action);
-}
+const ObjectId = require('mongoose').Types.ObjectId;
+const Argument = require('../../repository/argument');
+const Workspace = require('../../repository/workspace');
 
 module.exports = {
 	list,
 	detail,
 	create,
+	remove,
 	archive,
-	comment,
+	participant,
 	participants,
 };
+
+function list(userId) {
+	return Workspace
+		.all(userId)
+		.then(workspaces => {
+			const list = workspaces.map(workspace => workspace.id);
+
+			return Argument.count(list)
+				.then(counts => {
+					return workspaces.map(workspace => {
+						const count = counts.find(argue => workspace.id === argue.id);
+
+						if (count) {
+							delete count._id;
+							return Object.assign({}, workspace, {counts: count});
+						}
+
+						return Object.assign({}, workspace, {counts: {likes: 0, votes: 0, argues: 0}});
+					});
+				});
+		});
+}
+
+function detail(workspaceId) {
+	return Workspace
+		.one(workspaceId);
+}
+
+function create({creator, title, description, start, end, participants}) {
+	return Workspace
+		.create({creator, title, description, start, end, participants});
+}
+
+// TODO: On remove should delete all arguments and their comments
+function remove(workspaceId) {
+	return Workspace
+		.remove(workspaceId);
+}
+
+function archive(workspaceId, action = 'archive') {
+	const archive = action === 'archive';
+
+	return Workspace
+		.archive(workspaceId, archive);
+}
+
+function participant(workspaceId, participant, action) {
+	return Workspace
+		.participant(workspaceId, participant, action);
+}
+
+function participants(workspaceId) {
+	return Workspace
+		.participants(workspaceId);
+}

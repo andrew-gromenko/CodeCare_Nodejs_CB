@@ -8,9 +8,9 @@
     "start": "pm2 start ./ecosystem.config.js --env=production",
     "delete": "pm2 delete ./ecosystem.config.js --env=production",
     "restart": "pm2 restart ./ecosystem.config.js --env=production",
-    "up:dev": "npm run rm-logs && npm run start:dev",
-    "start:dev": "pm2 start ./ecosystem.config.js --env=development --watch",
-    "delete:dev": "pm2 delete ./ecosystem.config.js --env=development --watch",
+    "up:dev": "pm2 flush && && npm run start:dev",
+    "start:dev": "pm2 flush && pm2 start ./ecosystem.config.js --env=development --watch",
+    "delete:dev": "pm2 flush && pm2 delete ./ecosystem.config.js --env=development --watch",
     "restart:dev": "pm2 flush && pm2 restart ./ecosystem.config.js --env=development --watch"
   },
   "dependencies": {

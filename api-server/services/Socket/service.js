@@ -1,29 +1,38 @@
 const Clients = require('./clients');
 
-function updateUserContacts(client, followers, following) {
+const _push = (array, item) => [...array, item];
+const _pull = (array, item) => array.filter(value => value !== item);
+
+function updateUser(client, options) {
 	const {sockets, user} = client;
+
 	return {
 		sockets: [...sockets],
-		user: Object.assign({}, user, {
-			followers: [...followers],
-			following: [...following],
-		}),
+		user: Object.assign({}, user, options),
 	};
 }
 
+function updateUserContacts(client, followers, following) {
+	return updateUser(client, {
+		followers: [...followers],
+		following: [...following],
+	});
+}
+
 function updateUserRooms(client, room, action = 'push') {
-	const {sockets, user} = client;
-	const {rooms} = user;
+	const {user: {rooms}} = client;
 
-	const push = room => ([...rooms, room]);
-	const pull = room => rooms.filter(item => item !== room);
+	return updateUser(client, {
+		rooms: action === 'push' ? _push(rooms, room) : _pull(rooms, room),
+	});
+}
 
-	return {
-		sockets: [...sockets],
-		user: Object.assign({}, user, {
-			rooms: action === 'push' ? push(room) : pull(room),
-		}),
-	};
+function updateUserWorkspace(client, workspace, action = 'push') {
+	const {user: {workspaces}} = client;
+
+	return updateUser(client, {
+		workspaces: action === 'push' ? _push(workspaces, workspace) : _pull(workspaces, workspace),
+	});
 }
 
 class SocketService {
@@ -111,6 +120,15 @@ class SocketService {
 		if (client) {
 			client.sockets
 				.forEach(socket => socket.to(room).emit('chat_message', {room, message}));
+		}
+	}
+
+	chatMessagePristine({issuer, room, messages}) {
+		const client = this.clients.findByUser(issuer);
+
+		if (client) {
+			client.sockets
+				.forEach(socket => socket.to(room).emit('chat_message_pristine', {room, messages}));
 		}
 	}
 }

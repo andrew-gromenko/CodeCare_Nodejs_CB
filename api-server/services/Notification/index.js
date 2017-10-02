@@ -18,7 +18,8 @@ function follow(follower, following) {
 			issuer: follower,
 			recipient: following,
 		})
-		.then(notification => Socket.notify(notification))
+		.then(notification =>
+			Socket.notify(notification));
 }
 
 function invite({creator, participants, title}) {
@@ -33,7 +34,9 @@ function invite({creator, participants, title}) {
 	});
 
 	return Promise.all(promises)
-		.then(notifications => notifications.forEach(notification => Socket.notify(notification)));
+		.then(notifications =>
+			notifications.forEach(notification =>
+				Socket.notify(notification)));
 }
 
 function message() {}

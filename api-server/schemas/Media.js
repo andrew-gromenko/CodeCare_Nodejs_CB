@@ -4,11 +4,12 @@ const Schema = mongoose.Schema;
 const MediaSchema = new Schema({
 	type: {
 		type: String,
-		enum: ['image', 'video', 'audio'],
 		required: true,
+		lowercase: true,
+		enum: ['image', 'video', 'audio'],
 	},
 
-	sources: {
+	image: {
 		small: {
 			src: {type: String, required: true},
 			width: {type: Number, required: true},
@@ -20,6 +21,26 @@ const MediaSchema = new Schema({
 			width: {type: Number, required: true},
 			height: {type: Number, required: true},
 		},
+	},
+
+	source: {
+		type: String,
+		required: true,
+	},
+
+	file_name: {
+		type: String,
+		required: true,
+	},
+
+	extension: {
+		type: String,
+		required: true,
+	},
+
+	size: {
+		type: Number,
+		required: true,
 	},
 
 	created_at: {

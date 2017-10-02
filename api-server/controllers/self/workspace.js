@@ -1,5 +1,11 @@
 const Workspace = require('../../services/Workspace');
 
+function one(request, response, next) {
+	const {params} = request;
+
+	response.send({status: 200, data: {message: 'Should be workspace! :)'}});
+}
+
 function list(request, response, next) {
 	const {_user} = request;
 
@@ -23,6 +29,8 @@ function create(request, response, next) {
 
 function remove(request, response, next) {
 	const {params} = request;
+
+	return response.send({status: 200, data: {message: 'Should remove workspace'}});
 }
 
 function detail(request, response, next) {
@@ -37,32 +45,29 @@ function detail(request, response, next) {
 
 function update(request, response, next) {
 	const {params} = request;
+
+	return response.send({status: 200, data: {message: 'Should update workspace'}});
 }
 
-function archive(request, response, next) {}
+function archive(request, response, next) {
+	const {params} = request;
 
-function argument(request, response, next) {}
+	return response.send({status: 200, data: {message: 'Should archive workspace'}});
+}
 
-function participants(request, response, next) {
-	const {
-		body: {participants, action = 'push'},
-		params: {workspace: workspaceId},
-	} = request;
+function invite(request, response, next) {
+	const {params} = request;
 
-	Workspace.participants(workspaceId, participants, action)
-		.then(workspace =>
-			response.send({status: 200, data: {workspace}}))
-		.catch(error =>
-			response.send({status: 400, error: {message: error.message}}));
+	return response.send({status: 200, data: {message: 'Should send invites to users'}});
 }
 
 module.exports = {
+	one,
 	list,
 	create,
 	remove,
 	update,
 	detail,
 	archive,
-	argument,
-	participants,
+	invite,
 };

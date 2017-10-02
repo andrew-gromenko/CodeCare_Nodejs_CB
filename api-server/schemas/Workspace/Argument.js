@@ -15,13 +15,22 @@ const ArgumentSchema = new Schema({
 		type: Schema.ObjectId, ref: 'User',
 	}],
 
-	additionally: {
+	votes: [{
+		type: Schema.ObjectId, ref: 'User',
+	}],
+
+	media: {
 		type: Schema.ObjectId, ref: 'Media',
 	},
 
 	comments: [{
 		type: Schema.ObjectId, ref: 'Comment',
 	}],
+
+	workspace: {
+		type: Schema.ObjectId, ref: 'Workspace',
+		required: true,
+	},
 
 	created_at: {
 		type: Date,

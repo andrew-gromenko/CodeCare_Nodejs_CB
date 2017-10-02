@@ -25,11 +25,13 @@ const ContactsSchema = new Schema({
 	secure: [{
 		phone: {
 			type: String,
+			lowercase: true,
 			enum: ['private', 'friends', 'public'],
 			default: 'private',
 		},
 		email: {
 			type: String,
+			lowercase: true,
 			enum: ['private', 'friends', 'public'],
 			default: 'private',
 		},
