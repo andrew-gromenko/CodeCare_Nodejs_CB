@@ -23,9 +23,9 @@ config.cors = {
 };
 
 config.socket = {
-	// cookie: false,
-	// origins: config.cors.origin,
-	// transports: ['websocket', 'flashsocket', 'htmlfile', 'xhr-polling', 'jsonp-polling'],
+	cookie: false,
+	origins: config.cors.origin,
+	transports: ['websocket', 'flashsocket', 'htmlfile', 'xhr-polling', 'jsonp-polling'],
 };
 
 config.redis = {
