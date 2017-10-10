@@ -9,7 +9,7 @@ config.db = {
 	path: PRODUCTION ? 'clockbeats'         : 'development',
 };
 
-config.db.uri = !PRODUCTION ? `mongodb//${config.db.host}:${config.db.port}/${config.db.path}` : `mongodb://${config.db.user}:${config.db.pass}@${config.db.host}:${config.db.port}/${config.db.path}`;
+config.db.uri = !PRODUCTION ? `mongodb://${config.db.host}:${config.db.port}/${config.db.path}` : `mongodb://${config.db.user}:${config.db.pass}@${config.db.host}:${config.db.port}/${config.db.path}`;
 
 config.api = {
 	port: PRODUCTION ? '80' : '8080',
@@ -23,9 +23,9 @@ config.cors = {
 };
 
 config.socket = {
-	cookie: false,
-	origins: config.cors.origin,
-	transports: ['websocket', 'flashsocket', 'htmlfile', 'xhr-polling', 'jsonp-polling'],
+	// cookie: false,
+	// origins: config.cors.origin,
+	// transports: ['websocket', 'flashsocket', 'htmlfile', 'xhr-polling', 'jsonp-polling'],
 };
 
 config.redis = {
