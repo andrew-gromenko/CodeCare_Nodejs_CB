@@ -1,13 +1,13 @@
 const mongoose = require('mongoose');
 const Promise = require('bluebird');
 
-const {db} = require('../../config');
+const {db} = require('../../common.config');
 
 // Setup mongoose use bluebird promises
 mongoose.Promise = Promise;
 
 // Create the database connection
-mongoose.connect(db.url, {
+mongoose.connect(db.uri, {
 	useMongoClient: true,
 });
 

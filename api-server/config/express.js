@@ -4,7 +4,7 @@ const compression = require('compression');
 const express = require('express');
 const helmet = require('helmet');
 
-const {api} = require('../../config');
+const {api, cors: CORS} = require('../../common.config');
 
 // Require database connection;
 require('./database');
@@ -16,7 +16,7 @@ const server = express();
 server.use(helmet());
 server.use(bodyParser.json());
 server.use(bodyParser.urlencoded({extended: true}));
-server.use(cors(api.cors));
+server.use(cors(CORS));
 server.use(compression());
 
 server.enable('trust proxy');
