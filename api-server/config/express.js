@@ -22,12 +22,14 @@ server.use(compression());
 server.enable('trust proxy');
 server.enable('etag', 'strong');
 
+server.set('port', (process.env.PORT || api.port));
+
 // Setup secret word for jwt authentication
 server.set('SECRET_TOKEN', api.secret);
 
 /* Server startup */
-const http = server.listen(api.port, api.host, () => {
-	console.info(`API server is running on ${api.host}:${api.port}`);
+const http = server.listen(server.get('port'), () => {
+	console.info(`API server is running on ${api.port} port`);
 });
 
 /* Sockets startup */
