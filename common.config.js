@@ -12,9 +12,8 @@ config.db = {
 config.db.uri = !PRODUCTION ? `mongodb//${config.db.host}:${config.db.port}/${config.db.path}` : `mongodb://${config.db.user}:${config.db.pass}@${config.db.host}:${config.db.port}/${config.db.path}`;
 
 config.api = {
-	host: PRODUCTION ? '' : 'localhost',
 	port: PRODUCTION ? '80' : '8080',
-	secret: PRODUCTION ? '' : 'c3VwZXJjYWxpZnJhZ2lsaXN0aWNleHBpYWxpZG9jaW91cw==',
+	secret: PRODUCTION ? 'c3VwZXJjYWxpZnJhZ2lsaXN0aWNleHBpYWxpZG9jaW91cw==' : 'c3VwZXJjYWxpZnJhZ2lsaXN0aWNleHBpYWxpZG9jaW91cw==',
 };
 
 config.cors = {
