@@ -1,5 +1,4 @@
 const mongoose = require('../api-server/config/database');
-const users = require('./Users');
 const Promise = require('bluebird');
 
 require('mongoose').model('Message').collection.drop();
@@ -7,6 +6,8 @@ require('mongoose').model('Notification').collection.drop();
 require('mongoose').model('Profile').collection.drop();
 require('mongoose').model('Room').collection.drop();
 require('mongoose').model('User').collection.drop();
+
+const users = require('./Users');
 
 Promise.all(users)
 	.then(result => {

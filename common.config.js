@@ -1,12 +1,31 @@
-const PRODUCTION = process.env.NODE_ENV === 'production';
+const {
+	NODE_ENV,
+
+	API_PORT,
+	API_SECRET_WORD,
+
+	DB_HOST,
+	DB_PORT,
+	DB_PATH,
+	DB_USER,
+	DB_PASS,
+
+	AWS_S3_BUCKET,
+	AWS_S3_REGION,
+	AWS_ACCESS_KEY_ID,
+	AWS_SECRET_ACCESS_KEY,
+	AWS_SIGNATURE_VERSION,
+} = process.env;
+
 const config = {};
+const PRODUCTION = NODE_ENV === 'production';
 
 config.db = {
-	user: PRODUCTION ? 'cb'                 : 'admin',
-	pass: PRODUCTION ? 'cbsecurepassword'   : 'password',
-	host: PRODUCTION ? 'ds113915.mlab.com'  : '127.0.0.1',
-	port: PRODUCTION ? '13915'              : '27017',
-	path: PRODUCTION ? 'clockbeats'         : 'development',
+	host: DB_HOST,
+	port: DB_PORT,
+	path: DB_PATH,
+	user: DB_USER,
+	pass: DB_PASS,
 };
 
 config.db.uri = !PRODUCTION
@@ -14,8 +33,8 @@ config.db.uri = !PRODUCTION
 	: `mongodb://${config.db.user}:${config.db.pass}@${config.db.host}:${config.db.port}/${config.db.path}`;
 
 config.api = {
-	port: PRODUCTION ? '80' : '8080',
-	secret: PRODUCTION ? 'c3VwZXJjYWxpZnJhZ2lsaXN0aWNleHBpYWxpZG9jaW91cw==' : 'c3VwZXJjYWxpZnJhZ2lsaXN0aWNleHBpYWxpZG9jaW91cw==',
+	port: API_PORT,
+	secret: API_SECRET_WORD,
 };
 
 config.cors = {
@@ -24,14 +43,25 @@ config.cors = {
 	optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
 };
 
+config.aws = {
+	params: {
+		ACL: 'public-read',
+		Bucket: AWS_S3_BUCKET,
+	},
+	region: AWS_S3_REGION,
+	accessKeyId: AWS_ACCESS_KEY_ID,
+	secretAccessKey: AWS_SECRET_ACCESS_KEY,
+	signatureVersion: AWS_SIGNATURE_VERSION,
+};
+
 config.socket = {
-	// cookie: false,
-	// origins: config.cors.origin,
-	// transports: ['websocket', 'flashsocket', 'htmlfile', 'xhr-polling', 'jsonp-polling'],
+	// TODO: Needs calibration
+	// https://socket.io/docs/server-api
 };
 
 config.redis = {
 	// TODO: enable into project to use for online users
+	// https://github.com/socketio/socket.io-redis
 };
 
 config.logging = {

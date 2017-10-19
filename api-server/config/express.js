@@ -1,9 +1,15 @@
-const cors = require('cors');
-const bodyParser = require('body-parser');
-const compression = require('compression');
-const express = require('express');
-const helmet = require('helmet');
+const cors         = require('cors');
+const compression  = require('compression');
+const express      = require('express');
+const helmet       = require('helmet');
+const parser       = require('body-parser');
 
+// Module that loads environment variables from a .env file into process.env
+// As early as possible in your application, require and configure dotenv.
+// https://github.com/motdotla/dotenv
+require('dotenv').config();
+
+// Require configs
 const {api, cors: CORS} = require('../../common.config');
 
 // Require database connection;
@@ -14,21 +20,19 @@ const server = express();
 
 // Express configuration
 server.use(helmet());
-server.use(bodyParser.json());
-server.use(bodyParser.urlencoded({extended: true}));
+server.use(parser.json({limit: '50mb', parameterLimit: 1000000}));
+server.use(parser.urlencoded({extended: true, limit: '50mb', parameterLimit: 1000000}));
 server.use(cors(CORS));
 server.use(compression());
 
 server.enable('trust proxy');
 server.enable('etag', 'strong');
 
-server.set('port', (process.env.PORT || api.port));
-
 // Setup secret word for jwt authentication
 server.set('SECRET_TOKEN', api.secret);
 
 /* Server startup */
-const http = server.listen(server.get('port'), () => {
+const http = server.listen(api.port, () => {
 	console.info(`API server is running on ${api.port} port`);
 });
 

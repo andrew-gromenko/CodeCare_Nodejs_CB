@@ -5,25 +5,23 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "rm-logs": "rm -rf api-server/.logs/*.log",
     "up": "npm run rm-logs && npm run start",
-    "start": "pm2 start ./ecosystem.config.js --env=production",
-    "delete": "pm2 delete ./ecosystem.config.js --env=production",
-    "restart": "pm2 restart ./ecosystem.config.js --env=production",
-    "up:dev": "pm2 flush && && npm run start:dev",
-    "start:dev": "pm2 flush && pm2 start ./ecosystem.config.js --env=development --watch",
-    "delete:dev": "pm2 flush && pm2 delete ./ecosystem.config.js --env=development --watch",
-    "restart:dev": "pm2 flush && pm2 restart ./ecosystem.config.js --env=development --watch"
+    "start": "pm2 start ./ecosystem.config.js --env development",
+    "delete": "pm2 delete ./ecosystem.config.js --env development",
+    "restart": "pm2 restart ./ecosystem.config.js--env development"
   },
   "engines": {
     "node": "8.4.0"
   },
   "dependencies": {
-    "aws-sdk": "^2.125.0",
+    "aws-sdk": "^2.134.0",
     "bcrypt": "^1.0.2",
     "bluebird": "^3.5.0",
     "body-parser": "^1.17.1",
     "compression": "^1.6.2",
     "cors": "^2.8.1",
+    "dotenv": "^4.0.0",
     "express": "^4.15.2",
+    "formidable": "^1.1.1",
     "helmet": "^3.5.0",
     "jsonwebtoken": "^7.3.0",
     "lodash": "^4.17.4",
@@ -31,6 +29,7 @@
     "morgan": "^1.8.1",
     "request": "^2.81.0",
     "request-promise": "^4.2.1",
+    "shortid": "^2.2.8",
     "socket.io": "^2.0.2",
     "validator": "^8.0.0",
     "winston": "^2.3.1"

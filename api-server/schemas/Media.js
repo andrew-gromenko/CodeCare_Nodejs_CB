@@ -2,6 +2,11 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const MediaSchema = new Schema({
+	owner: {
+		type: Schema.ObjectId, ref: 'User',
+		required: true,
+	},
+
 	type: {
 		type: String,
 		required: true,
@@ -9,22 +14,8 @@ const MediaSchema = new Schema({
 		enum: ['image', 'video', 'audio'],
 	},
 
-	image: {
-		small: {
-			src: {type: String, required: true},
-			width: {type: Number, required: true},
-			height: {type: Number, required: true},
-		},
-
-		original: {
-			src: {type: String, required: true},
-			width: {type: Number, required: true},
-			height: {type: Number, required: true},
-		},
-	},
-
-	source: {
-		type: String,
+	entity: {
+		type: Schema.Types.Mixed,
 		required: true,
 	},
 

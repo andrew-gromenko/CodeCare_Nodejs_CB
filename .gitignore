@@ -4,3 +4,5 @@
 api-server/_Bundles
 api-server/_Routing
 api-server/_Controllers
+
+.env
