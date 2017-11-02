@@ -33,10 +33,12 @@ module.exports = {
 
 function prepare(model) {
 	const object = prettify(model, ['__removed_for']);
+	const participants = model.participants.map(id => id.toString());
 
 	return {
 		...object,
 		messages: [],
+		participants,
 	};
 }
 

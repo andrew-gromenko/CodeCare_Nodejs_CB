@@ -96,10 +96,8 @@ function profile(username) {
 // TODO: should be the list of events
 function events(id) {
 	return Promise.resolve({
-		user: {
-			id,
-			events: [],
-		},
+		id,
+		events: [],
 		count: 0,
 		// TODO: should generate link to get next chunk
 		next: '',
@@ -109,10 +107,8 @@ function events(id) {
 // TODO: should be the list of events
 function projects(id) {
 	return Promise.resolve({
-		user: {
-			id,
-			projects: [],
-		},
+		id,
+		projects: [],
 		count: 0,
 		// TODO: should generate link to get next chunk
 		next: '',

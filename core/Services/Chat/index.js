@@ -60,7 +60,7 @@ function create(participants) {
 	return Room.create(participants)
 		.then(room => {
 			const users = room.participants
-				.map(user => ({id: user, room}));
+				.map(user => ({id: user, chat: room}));
 
 			Socket.updateRooms(users, 'push');
 
