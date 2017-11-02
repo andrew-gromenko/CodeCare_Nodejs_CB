@@ -1,0 +1,10 @@
+require('./Argument/model');
+require('./Comment/model');
+require('./Invite/model');
+require('./Media/model');
+require('./Message/model');
+require('./Notification/model');
+require('./Project/model');
+require('./Room/model');
+require('./User/model');
+require('./Workspace/model');

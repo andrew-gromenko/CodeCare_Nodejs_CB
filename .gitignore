@@ -1,0 +1,11 @@
+.idea
+node_modules
+
+# pm2 logs folder
+.logs
+
+# env const config
+.env
+
+# temp files/folders to hold code which should be omitted
+**/**/__*
