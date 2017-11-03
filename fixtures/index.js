@@ -1,6 +1,3 @@
-// Init .env variables
-require('dotenv').config();
-
 // Third party libs
 const Promise = require('bluebird');
 

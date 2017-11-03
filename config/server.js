@@ -4,11 +4,6 @@ const express   = require('express');
 const helmet    = require('helmet');
 const parser    = require('body-parser');
 
-// Module that loads environment variables from a .env file into process.env
-// As early as possible in your application, require and configure dotenv.
-// https://github.com/motdotla/dotenv
-require('dotenv').config();
-
 // Require configs
 const {api, cors: CORS} = require('../common.config');
 

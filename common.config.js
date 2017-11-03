@@ -1,6 +1,13 @@
-const {
-	NODE_ENV,
+const PRODUCTION = process.env.NODE_ENV === 'production';
 
+if (!PRODUCTION) {
+	// Module that loads environment variables from a .env file into process.env
+	// As early as possible in your application, require and configure dotenv.
+	// https://github.com/motdotla/dotenv
+	require('dotenv').config();
+}
+
+const {
 	API_PORT,
 	API_SECRET_WORD,
 
@@ -18,7 +25,6 @@ const {
 } = process.env;
 
 const config = {};
-const PRODUCTION = NODE_ENV === 'production';
 
 config.db = {
 	host: DB_HOST,
