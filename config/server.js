@@ -26,7 +26,7 @@ server.enable('etag', 'strong');
 // Setup secret word for jwt authentication
 server.set('SECRET_TOKEN', api.secret);
 
-server.set('port', api.port);
+server.set('port', process.env.PORT || api.port);
 
 /* Server startup */
 const http = server.listen(server.get('port'), () => {
