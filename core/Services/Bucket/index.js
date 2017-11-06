@@ -1,15 +1,17 @@
-const Promise        = require('bluebird');
-const {S3}           = require('aws-sdk');
-const {Transform}    = require('stream');
+const Promise = require('bluebird');
+const {S3} = require('aws-sdk');
+const {Transform} = require('stream');
 const {IncomingForm} = require('formidable');
-const {generate}     = require('shortid');
-const {aws}          = require('../../../common.config');
+const {generate} = require('shortid');
+const uuid = require('uuid/v4');
+const moment = require('moment');
+const {aws} = require('../../../common.config');
 
-const amazon        = new S3(aws);
-const	getObject     = Promise.promisify(amazon.getObject, {context: amazon});
-const uploadObject  = Promise.promisify(amazon.upload, {context: amazon});
-const	deleteObjects = Promise.promisify(amazon.deleteObjects, {context: amazon});
-const	listObjectsV2 = Promise.promisify(amazon.listObjectsV2, {context: amazon});
+const amazon = new S3(aws);
+const getObject = Promise.promisify(amazon.getObject, {context: amazon});
+const uploadObject = Promise.promisify(amazon.upload, {context: amazon});
+const deleteObjects = Promise.promisify(amazon.deleteObjects, {context: amazon});
+const listObjectsV2 = Promise.promisify(amazon.listObjectsV2, {context: amazon});
 
 /* Exports */
 module.exports = {
@@ -40,32 +42,19 @@ function remove(Keys = []) {
 	});
 }
 
+function generateName(type = 'resource', ext) {
+	const id = generate();
+	const name = uuid();
+	const date = moment().format('YYYY-MM-DD');
+
+	return `${date}/${id}/${type}/${name}.${ext}`;
+}
+
 function uploader(request) {
-	const {_user} = request;
 	const form = new IncomingForm();
 	const result = {
 		file: {},
-		fields: [],
-	};
-
-	// generate name for file which will be stored on AWS S3
-	// user_id/images/file_name TODO: user_id/images/<SIZE>/file_name
-	// user_id/audios/file_name
-	// user_id/videos/file_name
-
-	const key = ({userId, type}) => {
-		const date = new Date();
-		const day = date.getDate();
-		const year = date.getFullYear();
-		const month = (date.getMonth() + 1);
-
-		const formatted = {
-			day: day <= 9 ? `0${day}` : day,
-			year,
-			month: month <= 9 ? `0${month}` : month,
-		};
-
-		return `${userId}/${formatted.year}-${formatted.month}-${formatted.day}/${type}/${generate()}`;
+		fields: {},
 	};
 
 	const handler = (resolve, reject) => {
@@ -82,7 +71,10 @@ function uploader(request) {
 
 				this._writeStream.on('error', reject);
 
-				upload(key({userId: _user.id, type:'image'}), this._writeStream)
+				const [ext] = file.name.split('.').slice(-1);
+				const [type] = file.type.split('/');
+
+				upload(generateName(type, ext), this._writeStream)
 					.then(({Location, Bucket, Key}) => {
 
 						result.file = Object.assign({}, result.file, {
@@ -98,7 +90,7 @@ function uploader(request) {
 		});
 
 		form.on('field', (name, value) =>
-			result.fields.push({[name]: value}));
+			result.fields[name] = value);
 
 		form.on('error', (error) =>
 			reject(new Error(`Error is occurred while loading file. ${error.message}`)));
@@ -114,7 +106,7 @@ function uploader(request) {
 		});
 
 		form.parse(request);
-	}
+	};
 
 	return new Promise(handler);
 }

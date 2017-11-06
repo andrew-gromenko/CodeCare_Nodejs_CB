@@ -34,6 +34,106 @@ function successHandler(data) {
 	};
 }
 
+// TODO: should support uploading small image
+function imageHandler(file) {
+	const {key, src, bucket} = file;
+
+	return {
+		small: {
+			src,
+			key,
+			bucket,
+		},
+		standard: {
+			src,
+			key,
+			bucket,
+		},
+	};
+}
+
+// TODO: should support `samples`
+function audioHandler(file) {
+	const {key, src, bucket} = file;
+
+	return {
+		src,
+		key,
+		bucket,
+	};
+}
+
+function videoHandler(file) {
+	const {key, src, bucket} = file;
+
+	return {
+		src,
+		key,
+		bucket,
+	};
+}
+
+function otherHandler(file) {
+	const {key, src, bucket} = file;
+
+	return {
+		src,
+		key,
+		bucket,
+	};
+}
+
+function fileHandler({file, fields}) {
+	const {name, tags} = fields;
+	const {size, type} = file;
+	const [file_type, extension] = type.split('/');
+
+	const common = {
+		size,
+		tags,
+		file_name: name,
+		extension,
+	};
+
+	switch (file_type) {
+		case 'image': {
+			return {
+				...common,
+				type: 'image',
+				entity: imageHandler(file),
+			};
+		}
+
+		case 'audio': {
+			const {samples = []} = fields;
+			return {
+				...common,
+				type: 'audio',
+				entity: {
+					samples,
+					...audioHandler(file),
+				},
+			};
+		}
+
+		case 'video': {
+			return {
+				...common,
+				type: 'video',
+				entity: videoHandler(file),
+			};
+		}
+
+		default: {
+			return {
+				...common,
+				type: 'other',
+				entity: otherHandler(file),
+			};
+		}
+	}
+}
+
 /**
  * =======
  * Core
@@ -53,27 +153,12 @@ function list(request, response) {
 function create(request, response) {
 	const {_user} = request;
 
-	// TODO: depend on file type should generate different entity
 	Bucket.uploader(request)
-		.then((result) => {
-			const {file: {size, type, file_name, key, src, bucket}} = result;
-			const [file_type, extension] = type.split('/');
+		.then(result => {
+			const object = fileHandler(result);
 
-			return Media.create({
-				owner: _user.id,
-				size,
-				type: file_type,
-				file_name,
-				extension,
-				entity: {
-					standard: {
-						src,
-						key,
-						bucket,
-					},
-				}
-			})
-				.then(media => response.send(successHandler({media})))
+			return Media.create({owner: _user.id, ...object})
+				.then(media => response.send(successHandler({media})));
 		})
 		.catch(error =>
 			response.send(errorHandler(error)));
