@@ -95,7 +95,7 @@ function pristine(request, response) {
 	Message
 		.pristine(room, _user.id, messages)
 		.then(messages =>
-			response.send(successHandler({messages})))
+			response.send(successHandler({room, messages})))
 		.catch(error =>
 			response.send(errorHandler(error)));
 }
