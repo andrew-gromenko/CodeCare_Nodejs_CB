@@ -57,7 +57,7 @@ module.exports = {
 function list(query) {
 	return User.list(query)
 		.then(users => ({
-			users: users.map(userSelector),
+			users: users.map(profileSelector),
 			total: 0,
 			next: '',
 		}));
