@@ -27,7 +27,7 @@ const users = [...new Array(25).keys()]
 			country: 'Italy',
 			phone: '3480058753',
 			categories: [],
-			skills: ['DoubleBass', 'Mixing', 'Mastering', 'Composing', 'Sound', 'Design', 'Logic X', 'Soundtrack', 'Piano', 'Ciao'],
+			skills: ['DoubleBass', 'Mixing', 'Mastering', 'Composing', 'Sound', 'Design', 'Logic X', 'Soundtrack', 'Piano', 'Ciao', 'n1', 'n2', 'n3', 'n4'],
 			summary: `Awesome User ${number} is a musician, poli-intrumentalist and music producer.
 					He has a degree in double bass from the Conservatory of Brescia (Italy), and a professional certificate in
 					electronic music composition from Berklee College of Music (Boston, MA).

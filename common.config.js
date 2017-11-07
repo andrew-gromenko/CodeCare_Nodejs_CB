@@ -42,7 +42,7 @@ config.api = {
 };
 
 config.cors = {
-	origin: PRODUCTION ? 'https://client-cb-staging.herokuapp.com' : '*',
+	origin: PRODUCTION ? 'https://clb-staging.herokuapp.com' : '*',
 	allowedHeaders: ['Authorization', 'Content-Type'],
 	optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
 };
