@@ -3,9 +3,7 @@
   "version": "1.0.0",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "rm-logs": "rm -rf api-server/.logs/*.log",
-    "up": "npm run rm-logs && npm run start",
-    "start": "pm2 start ./ecosystem.config.js --env development --watch",
+    "start": "pm2 start ./ecosystem.config.js --env development --watch && pm2 flush",
     "delete": "pm2 delete ./ecosystem.config.js --env development --watch",
     "restart": "pm2 restart ./ecosystem.config.js --env development --watch"
   },
