@@ -74,7 +74,6 @@ function update(id, options) {
 		...options,
 		'$currentDate': {modified_at: true},
 	};
-
 	return Media
 		.findOneAndUpdate({_id: ObjectId(id)}, query, instructions)
 		.then(model => {

@@ -34,9 +34,9 @@ function profileSelector(user) {
 		'email',
 		'phone',
 		'followers',
-		'following',
+		'following'
 	]);
-
+	console.log(user);
 	return {
 		...omitted,
 		counts: {

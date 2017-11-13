@@ -1,6 +1,6 @@
 const Media = require('../Models/Media');
 const Bucket = require('../Services/Bucket');
-
+const User = require('../Models/User');
 /**
  * =======
  * Exports
@@ -10,6 +10,7 @@ const Bucket = require('../Services/Bucket');
 module.exports = {
 	list,
 	create,
+	update
 };
 
 /**
@@ -36,7 +37,7 @@ function successHandler(data) {
 
 // TODO: should support uploading small image
 function imageHandler(file) {
-	const {key, src, bucket} = file;
+	const { key, src, bucket } = file;
 
 	return {
 		small: {
@@ -54,7 +55,7 @@ function imageHandler(file) {
 
 // TODO: should support `samples`
 function audioHandler(file) {
-	const {key, src, bucket} = file;
+	const { key, src, bucket } = file;
 
 	return {
 		src,
@@ -64,7 +65,7 @@ function audioHandler(file) {
 }
 
 function videoHandler(file) {
-	const {key, src, bucket} = file;
+	const { key, src, bucket } = file;
 
 	return {
 		src,
@@ -74,7 +75,7 @@ function videoHandler(file) {
 }
 
 function otherHandler(file) {
-	const {key, src, bucket} = file;
+	const { key, src, bucket } = file;
 
 	return {
 		src,
@@ -83,9 +84,9 @@ function otherHandler(file) {
 	};
 }
 
-function fileHandler({file, fields}) {
-	const {name, tags} = fields;
-	const {size, type} = file;
+function fileHandler({ file, fields }) {
+	const { name, tags } = fields;
+	const { size, type } = file;
 	const [file_type, extension] = type.split('/');
 
 	const common = {
@@ -105,7 +106,7 @@ function fileHandler({file, fields}) {
 		}
 
 		case 'audio': {
-			const {samples = []} = fields;
+			const { samples = [] } = fields;
 			return {
 				...common,
 				type: 'audio',
@@ -141,25 +142,32 @@ function fileHandler({file, fields}) {
  */
 
 function list(request, response) {
-	const {_user} = request;
+	const { _user } = request;
 
 	Media.list(_user.id)
 		.then(medias =>
-			response.send(successHandler({medias})))
+			response.send(successHandler({ medias })))
 		.catch(error =>
 			response.send(errorHandler(error)));
 }
 
 function create(request, response) {
-	const {_user} = request;
+	const { _user } = request;
 
 	Bucket.uploader(request)
 		.then(result => {
 			const object = fileHandler(result);
 
-			return Media.create({owner: _user.id, ...object})
-				.then(media => response.send(successHandler({media})));
+			return Media.create({ owner: _user.id, ...object })
+				.then(media => response.send(successHandler({ media })));
 		})
 		.catch(error =>
 			response.send(errorHandler(error)));
+}
+
+function update(request, response) {
+	User.update(request.params.userId, request.body)
+		.then((res) => {
+			response.send(successHandler(res))
+		})
 }

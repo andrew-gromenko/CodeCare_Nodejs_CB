@@ -1,4 +1,5 @@
 const Message = require('../Services/Chat/messages');
+const { Room } = require('../Models/Room');
 
 /**
  * =======
@@ -46,56 +47,57 @@ function successHandler(data) {
 
 // TODO: should support query
 function list(request, response) {
-	const {params: {room}, query} = request;
+	const { params: { room }, query } = request;
 
 	Message
 		.list(room, query)
 		.then(messages =>
-			response.send(successHandler({messages})))
+			response.send(successHandler({ messages })))
 		.catch(error =>
 			response.send(errorHandler(error)));
 }
 
 function create(request, response) {
-	const {_user, params: {room}, body} = request;
+	const { _user, params: { room }, body } = request;
 
 	Message
 		.create(room, _user.id, body)
-		.then(message =>
-			response.send(successHandler({message})))
+		.then(message => Room.findOneAndUpdate({ _id: room }, { modified_at: Date.now() })
+			.then(() =>  response.send(successHandler({ message })))
+		)
 		.catch(error =>
 			response.send(errorHandler(error)));
 }
 
 function remove(request, response) {
-	const {_user, params: {room}, body: {messages}} = request;
+	const { _user, params: { room }, body: { messages } } = request;
 
 	Message
 		.remove(room, _user.id, messages)
 		.then(messages =>
-			response.send(successHandler({messages})))
+			response.send(successHandler({ messages })))
 		.catch(error =>
 			response.send(errorHandler(error)));
 }
 
 function edit(request, response) {
-	const {_user, params: {room, message}, body} = request;
+	const { _user, params: { room, message }, body } = request;
 
 	Message
 		.edit(room, _user.id, message, body)
 		.then(message =>
-			response.send(successHandler({message})))
+			response.send(successHandler({ message })))
 		.catch(error =>
 			response.send(errorHandler(error)));
 }
 
 function pristine(request, response) {
-	const {_user, params: {room}, body: {messages}} = request;
+	const { _user, params: { room }, body: { messages } } = request;
 
 	Message
 		.pristine(room, _user.id, messages)
 		.then(messages =>
-			response.send(successHandler({room, messages})))
+			response.send(successHandler({ room, messages })))
 		.catch(error =>
 			response.send(errorHandler(error)));
 }

@@ -84,6 +84,10 @@ const User = new Schema({
 		type: Boolean,
 		default: true,
 	},
+	avatar: {
+		type: String,
+		default: ''
+	}
 });
 
 function encryptPassword(next, done) {

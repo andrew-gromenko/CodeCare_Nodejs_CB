@@ -15,7 +15,7 @@ const {
 module.exports = {
 	one,
 	list,
-
+	Room,
 	create,
 	update,
 	remove,
