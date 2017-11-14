@@ -87,6 +87,10 @@ const User = new Schema({
 	avatar: {
 		type: String,
 		default: ''
+	},
+	background: {
+		type: String,
+		default: ''
 	}
 });
 
