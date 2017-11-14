@@ -1,7 +1,7 @@
 const router = require('express').Router();
 
 const arguments = require('../../Controllers/arguments');
-// const comments = require('../../Controllers/arguments.comments');
+const comments = require('../../Controllers/comments');
 const workspaces = require('../../Controllers/workspaces');
 const members = require('../../Controllers/workspaces.members');
 
@@ -47,7 +47,7 @@ router.route('/:workspace/argues')
 	// Create new argues entity
 	.post(arguments.create);
 
-router.route('/:workspace/argues/:argue')
+router.route('/argues/:argue')
 	// Update argue entity
 	.put(arguments.update)
 
@@ -58,22 +58,12 @@ router.route('/:workspace/argues/:argue')
 	.delete(arguments.remove);
 
 
-// /* Comments */
-// router.route('/:workspace/argues/:argue/comments')
-// 	// Get argue comments list
-// 	.get(comments.list)
-//
-// 	// Create argue comment
-// 	.post(comments.create);
-//
-// router.route('/:workspace/argues/:argue/comments/:comment')
-// 	// Update comment entity
-// 	.put(comments.update)
-//
-// 	// Update like comment entity
-// 	.patch(comments.react)
-//
-// 	// Remove comment entity
-// 	.delete(comments.remove);
+/* Comments */
+router.route('/argues/:id/comments')
+	// Get argue comments list
+	.get(comments.list)
+
+	// Create argue comment
+	.post(comments.create);
 
 module.exports = router;
