@@ -105,8 +105,6 @@ function update(id, options) {
 		...options,
 		'$currentDate': {modified_at: true},
 	};
-	// console.log(id);
-	// console.log(query);
 	return User
 		.findOneAndUpdate({_id: ObjectId(id)}, query, instructions)
 		.then(model => {

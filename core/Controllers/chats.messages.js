@@ -71,7 +71,6 @@ function create(request, response) {
 
 function remove(request, response) {
 	const { _user, params: { room }, body: { messages } } = request;
-	console.log(request.body);
 	Message
 		.remove(room, _user.id, messages)
 		.then(messages =>
