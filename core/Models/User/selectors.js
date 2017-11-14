@@ -36,7 +36,7 @@ function profileSelector(user) {
 		'followers',
 		'following'
 	]);
-	console.log(user);
+	
 	return {
 		...omitted,
 		counts: {

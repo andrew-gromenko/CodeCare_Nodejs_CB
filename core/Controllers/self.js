@@ -54,7 +54,7 @@ function self(request, response) {
 
 function update(request, response) {
 	const {_user, body} = request;
-
+	console.log(body);
 	User.update(_user.id, body)
 		.then(user =>
 			response.send(successHandler({user})))
