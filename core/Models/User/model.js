@@ -91,6 +91,10 @@ const User = new Schema({
 	background: {
 		type: String,
 		default: ''
+	},
+	events: {
+		type: Array,
+		default: []
 	}
 });
 
