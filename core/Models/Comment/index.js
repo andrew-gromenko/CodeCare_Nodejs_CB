@@ -69,7 +69,7 @@ function create({issuer, body, media, belongs_to, replied_to}) {
 		replied_to,
 	};
 
-	return new Comment(object)
+	return new Comment(object).save()
 		.then(comment => prettify(comment));
 }
 
