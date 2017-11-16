@@ -76,7 +76,7 @@ function addComment(argueId, comment) {
 						return reject(new Error('No argument.'));
 
 					if (argument.comments.length >= 5)
-						argument.comments.splice(4);
+						argument.comments.splice(0, 1);
 
 					argument.comments.push(comment.id);
 					argument.save()
@@ -94,15 +94,28 @@ function list(workspaceId, query = {}) {
 	return Argument
 		.find(criteria)
 		.sort({created_at: -1})
-		.populate('comments')
+		.populate({
+			path: 'comments',
+			populate: {
+				path: 'replied_to'
+			}
+		})
 		.then(argues => {
 			if (!argues) return [];
 
 			return argues
 				.map(argue => {
-					argue.comments = argue.comments.map(c => prettify(c));
+					argue = prettify(argue);
+					argue.comments = argue.comments.map(c => {
+						c = prettify(c);
 
-					return prettify(argue);
+						if (c.replied_to)
+							c.replied_to = prettify(c.replied_to);
+
+						return c;
+					});
+
+					return argue;
 				});
 		});
 }

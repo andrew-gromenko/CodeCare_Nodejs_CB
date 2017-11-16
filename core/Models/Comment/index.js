@@ -39,9 +39,17 @@ function list(modelId, query) {
 
 	return Comment
 		.find({belongs_to: modelId})
-		.then(models =>
-			models.map(model =>
-				prettify(model)));
+		.populate('replied_to')
+		.then(models => {
+			return models.map(model => {
+				model = prettify(model);
+
+				if (model.replied_to)
+					model.replied_to = prettify(model.replied_to);
+
+				return model;
+			});
+		});
 }
 
 function owned(issuerId, query = {}) {
@@ -70,7 +78,18 @@ function create({issuer, body, media, belongs_to, replied_to}) {
 	};
 
 	return new Comment(object).save()
-		.then(comment => prettify(comment));
+		.then(({id}) => {
+			return Comment.findOne({_id: id})
+				.populate('replied_to')
+				.then(comment => {
+					comment = prettify(comment);
+
+					if (comment.replied_to)
+						comment.replied_to = prettify(comment.replied_to);
+
+					return comment;
+				});
+		});
 }
 
 function update(id, options) {
