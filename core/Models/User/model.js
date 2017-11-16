@@ -95,6 +95,10 @@ const User = new Schema({
 	events: {
 		type: Array,
 		default: []
+	},
+	projects: {
+		type: Array,
+		default: []
 	}
 });
 
