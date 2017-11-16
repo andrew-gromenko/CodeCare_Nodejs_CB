@@ -1,4 +1,5 @@
 const Argument = require('mongoose').model('Argument');
+const Comment = require('mongoose').model('Comment');
 const ObjectId = require('mongoose').Types.ObjectId;
 
 const {
@@ -18,6 +19,7 @@ module.exports = {
 	list,
 	owned,
 
+	addComment,
 	create,
 	update,
 	remove,
@@ -66,6 +68,23 @@ function owned(issuerId, query = {}) {
 		});
 }
 
+function addComment(argueId, comment) {
+	return new Promise(resolve => {
+		Argument.findOne({_id: ObjectId(argueId)})
+				.then(argument => {
+					if (!argument)
+						return reject(new Error('No argument.'));
+
+					if (argument.comments.length >= 5)
+						argument.comments.splice(4);
+
+					argument.comments.push(comment.id);
+					argument.save()
+						.then(_ => resolve(comment));
+				});
+	});
+}
+
 function list(workspaceId, query = {}) {
 	const criteria = {
 		...query,
@@ -75,10 +94,16 @@ function list(workspaceId, query = {}) {
 	return Argument
 		.find(criteria)
 		.sort({created_at: -1})
+		.populate('comments')
 		.then(argues => {
 			if (!argues) return [];
 
-			return argues.map(argue => prettify(argue));
+			return argues
+				.map(argue => {
+					argue.comments = argue.comments.map(c => prettify(c));
+
+					return prettify(argue);
+				});
 		});
 }
 
