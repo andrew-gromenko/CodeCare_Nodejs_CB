@@ -83,7 +83,7 @@ function update(id, options) {
 // currently it's return array with messages that are supposedly deleted
 function remove(list) {
 	return Message
-		.deleteMany({_id: {'$in': list.map(id => ObjectId(id))}})
+		.deleteMany({_id: {'$in': list.map(message => ObjectId(message.id))}})
 		.then(() => list);
 }
 
