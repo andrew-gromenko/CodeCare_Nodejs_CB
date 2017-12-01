@@ -85,13 +85,13 @@ function otherHandler(file) {
 }
 
 function fileHandler({ file, fields }) {
-	const { name, tags } = fields;
+	const { name, tag } = fields;
 	const { size, type } = file;
 	const [file_type, extension] = type.split('/');
 
 	const common = {
 		size,
-		tags,
+		tag,
 		file_name: name,
 		extension,
 	};

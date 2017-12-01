@@ -46,13 +46,14 @@ function list(userId, query = {}) {
 		.then(medias => medias.map(media => prettify(media)));
 }
 
-function create({owner, entity, type, file_name, size}) {
+function create({owner, entity, type, file_name, size, tag}) {
 	const object = {
 		owner,
 		entity,
 		type,
 		file_name,
 		size,
+		tag
 	};
 
 	return new Media(object)

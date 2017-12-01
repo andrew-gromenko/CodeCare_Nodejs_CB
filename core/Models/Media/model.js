@@ -29,9 +29,10 @@ const Media = new Schema({
 		required: true,
 	},
 
-	tags: [{
+	tag: {
 		type: String,
-	}],
+		default: ''
+	},
 
 	size: {
 		type: Number,
