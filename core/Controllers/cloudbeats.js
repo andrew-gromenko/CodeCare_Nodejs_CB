@@ -166,7 +166,7 @@ function create(request, response) {
 }
 
 function update(request, response) {
-	User.update(request.params.userId, request.body)
+	Media.update(request.params.userId, request.body)
 		.then((res) => {
 			response.send(successHandler(res))
 		})

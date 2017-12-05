@@ -72,8 +72,7 @@ function remove(list) {
 function update(id, options) {
 	const instructions = {'new': true, runValidators: true};
 	const query = {
-		...options,
-		'$currentDate': {modified_at: true},
+		...options
 	};
 	return Media
 		.findOneAndUpdate({_id: ObjectId(id)}, query, instructions)
