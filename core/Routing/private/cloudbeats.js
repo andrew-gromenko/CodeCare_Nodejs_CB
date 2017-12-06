@@ -7,4 +7,5 @@ router.route('/')
 	.post(cloudbeats.create)
 
 router.patch('/:userId' ,cloudbeats.update);
+router.delete('/:userId' ,cloudbeats.remove);
 module.exports = router;

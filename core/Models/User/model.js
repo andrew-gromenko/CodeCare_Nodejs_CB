@@ -99,7 +99,10 @@ const User = new Schema({
 	projects: {
 		type: Array,
 		default: []
-	}
+	},
+	blacklist: [{
+		type: Schema.ObjectId, ref: 'User',
+	}]
 });
 
 function encryptPassword(next, done) {

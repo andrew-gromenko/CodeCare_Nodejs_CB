@@ -36,17 +36,17 @@ module.exports = {
 
 function one(id) {
 	return Media
-		.findOne({_id: ObjectId(id)})
+		.findOne({ _id: ObjectId(id) })
 		.then(prettify(media));
 }
 
 function list(userId, query = {}) {
 	return Media
-		.find({owner: ObjectId(userId)})
+		.find({ owner: ObjectId(userId) })
 		.then(medias => medias.map(media => prettify(media)));
 }
 
-function create({owner, entity, type, file_name, size, tag}) {
+function create({ owner, entity, type, file_name, size, tag }) {
 	const object = {
 		owner,
 		entity,
@@ -61,21 +61,21 @@ function create({owner, entity, type, file_name, size, tag}) {
 		.then(prettify);
 }
 
-// TODO: should return documents which was removed
-// currently it's return array with messages that are supposedly deleted
-function remove(list) {
+function remove(mediaId) {
 	return Media
-		.deleteMany({_id: {'$in': list.map(id => ObjectId(id))}})
-		.then(response => list);
+		.findByIdAndRemove(ObjectId(mediaId))
+		.then((res) => {
+			return res.entity.key
+		});
 }
 
 function update(id, options) {
-	const instructions = {'new': true, runValidators: true};
+	const instructions = { 'new': true, runValidators: true };
 	const query = {
 		...options
 	};
 	return Media
-		.findOneAndUpdate({_id: ObjectId(id)}, query, instructions)
+		.findOneAndUpdate({ _id: ObjectId(id) }, query, instructions)
 		.then(model => {
 			exist(model);
 
@@ -83,6 +83,6 @@ function update(id, options) {
 		});
 }
 
-function edit(id, {name}) {
-	return update(id, {'$set': {file_name: name}});
+function edit(id, { name }) {
+	return update(id, { '$set': { file_name: name } });
 }
