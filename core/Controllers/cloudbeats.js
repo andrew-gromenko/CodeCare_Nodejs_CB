@@ -10,7 +10,9 @@ const User = require('../Models/User');
 module.exports = {
 	list,
 	create,
-	update
+	update,
+	remove
+
 };
 
 /**
@@ -169,5 +171,13 @@ function update(request, response) {
 	Media.update(request.params.userId, request.body)
 		.then((res) => {
 			response.send(successHandler(res))
+		})
+}
+
+function remove (request, response) {
+	Media.remove(request.params.userId)
+		.then((res)=>{
+			Bucket.remove([res])
+			.then((res)=> response.send(res.Deleted))
 		})
 }
