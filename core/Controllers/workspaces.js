@@ -50,12 +50,12 @@ function successHandler(data) {
  */
 
 function one(request, response) {
-	const {params: {workspace}} = request;
+	const { params: { workspace } } = request;
 
 	// TODO: Should return workspace with: 10 arguments > 5 comments > 0 replies
 	Workspace.one(workspace)
 		.then(document =>
-			response.send(successHandler({workspace: document})))
+			response.send(successHandler({ workspace: document })))
 		.catch(error =>
 			response.send(errorHandler(error)));
 }
@@ -86,13 +86,13 @@ function list(request, response) {
 
 						return {
 							...workspace,
-							counts: {likes: 0, votes: 0, argues: 0},
+							counts: { likes: 0, votes: 0, argues: 0 },
 						};
 					});
 				});
 		})
 		.then(documents =>
-			response.send(successHandler({workspaces: documents})))
+			response.send(successHandler({ workspaces: documents })))
 		.catch(error =>
 			response.send(errorHandler(error)));
 }
@@ -104,53 +104,53 @@ function list(request, response) {
 function create(request, response) {
 	const {
 		_user,
-		body: {title, description, start, end, participants},
+		body: { title, description, start, end, participants },
 	} = request;
-
 	// TODO: should create invite to each participant
-	Workspace.create({creator: _user.id, title, description, start, end})
-		.then(document =>
-			response.send(successHandler({workspace: {...document, counts: {likes: 0, votes: 0, argues: 0}}})))
+	Workspace.create({ creator: _user.id, title, description, start, end, participants })
+		.then(document => {
+			return response.send(successHandler({ workspace: { ...document, counts: { likes: 0, votes: 0, argues: 0 } } }))
+		})
 		.catch(error =>
 			response.send(errorHandler(error)));
 }
 
 function update(request, response) {
 	const {
-		body: {title, description, start, end},
-		params: {workspace},
+		body: { title, description, start, end },
+		params: { workspace },
 	} = request;
 
 	// TODO: should update only 'title', 'description', 'start', 'end'
 	// TODO: Send from application all this fields
-	Workspace.update(workspace, {title, description, start, end})
+	Workspace.update(workspace, { title, description, start, end })
 		.then(document =>
-			response.send(successHandler({workspace: document})))
+			response.send(successHandler({ workspace: document })))
 		.catch(error =>
 			response.send(errorHandler(error)));
 }
 
 function remove(request, response) {
 	const {
-		params: {workspace},
+		params: { workspace },
 	} = request;
 
 	Workspace.remove(workspace)
 		.then(document =>
-			response.send(successHandler({workspace: document})))
+			response.send(successHandler({ workspace: document })))
 		.catch(error =>
 			response.send(errorHandler(error)));
 }
 
 function archive(request, response) {
 	const {
-		body: {archive},
-		params: {workspace},
+		body: { archive },
+		params: { workspace },
 	} = request;
 
 	Workspace.archive(workspace, archive)
 		.then(document =>
-			response.send(successHandler({workspace: document})))
+			response.send(successHandler({ workspace: document })))
 		.catch(error =>
 			response.send(errorHandler(error)));
 }

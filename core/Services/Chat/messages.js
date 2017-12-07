@@ -40,7 +40,7 @@ function last(room) {
 function create(room, issuer, {body, media}) {
 	return Message
 		.create({room, issuer, body, media})
-		.then(message => {
+		.then(message => {		
 			Socket.chatMessages({room, issuer, messages: [message]}, 'push');
 
 			return message;
@@ -51,7 +51,7 @@ function remove(room, issuer, list) {
 	return Message
 		.remove(list)
 		.then(messages => {
-			Socket.chatMessages({room, issuer, messages}, 'pull');
+			Socket.chatMessages({room, issuer, messages: [...messages]}, 'pull');
 
 			return messages;
 		});

@@ -56,8 +56,8 @@ function prepare(model, values) {
 function one(id) {
 	return Workspace
 		.findById(ObjectId(id))
-		// .populate(populate('user', 'creator'))
-		// .populate(populate('user', 'participants'))
+		.populate(populate('user', 'creator'))
+		.populate(populate('user', 'participants'))
 		.then(workspace => {
 			exist(workspace);
 
@@ -83,15 +83,16 @@ function list(userId, query = {}) {
 		.then(workspaces => workspaces.map(workspace => prepare(workspace)));
 }
 
-function create({creator, title, description, start, end}) {
+function create({creator, title, description, start, end, participants}) {
 	const object = {
 		creator,
 		title,
 		description,
 		starts_at: start,
 		ends_at: end,
+		participants
 	};
-
+	
 	return new Workspace(object)
 		.save()
 		.then(workspace => {
