@@ -149,7 +149,7 @@ class SocketService {
 
 	updateBlackList(usersId) {
 		let user = this.clients.findByUser(usersId)
-		user.sockets.forEach(socket => socket.emit('blacklist_update'));
+		if (user) user.sockets.forEach(socket => socket.emit('blacklist_update'));
 	}
 }
 
