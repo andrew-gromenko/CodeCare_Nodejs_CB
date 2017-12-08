@@ -3,6 +3,7 @@ const User = mongoose.model('User');
 const ObjectId = mongoose.Types.ObjectId;
 const Promise = require('bluebird');
 
+
 const {
 	exist,
 	prettify,
@@ -94,7 +95,7 @@ function create({email, username, password}) {
 			if (error.code === 11000) {
 				throw new Error('User already exists');
 			}
-
+			
 			throw error;
 		});
 }

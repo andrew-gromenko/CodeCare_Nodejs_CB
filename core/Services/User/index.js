@@ -5,6 +5,7 @@ const Room = require('../../Models/Room');
 const Project = require('../../Models/Project');
 const Workspace = require('../../Models/Workspace');
 
+
 // Services
 const Socket = require('../Socket');
 const Promise = require('bluebird');
@@ -69,8 +70,14 @@ function create({email, username, password}) {
 }
 
 function update(user, options) {
+	const socketUserId = options.socketUserId;
 	return User.edit(user, options)
-		.then(selfSelector);
+		.then((res)=>{
+			if(socketUserId){
+				Socket.updateBlackList(socketUserId)
+			}
+			return selfSelector(res)
+		});
 }
 
 function remove(user) {

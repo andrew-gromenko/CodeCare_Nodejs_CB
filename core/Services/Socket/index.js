@@ -137,7 +137,7 @@ class SocketService {
 				.forEach(socket => {
 					switch (action) {
 						case 'push': socket.to(room).emit('chat_message_push', { room, messages }); break;
-						case 'pull':socket.to(room).emit('chat_message_pull', { room, messages }); break;
+						case 'pull': socket.to(room).emit('chat_message_pull', { room, messages }); break;
 						case 'update': socket.to(room).emit('chat_message_update', { room, messages }); break;
 						case 'pristine': socket.to(room).emit('chat_message_pristine', { room, messages }); break;
 
@@ -145,6 +145,11 @@ class SocketService {
 					}
 				});
 		}
+	}
+
+	updateBlackList(usersId) {
+		let user = this.clients.findByUser(usersId)
+		user.sockets.forEach(socket => socket.emit('blacklist_update'));
 	}
 }
 
