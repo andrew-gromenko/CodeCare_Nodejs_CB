@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const Workspace = mongoose.model('Workspace');
 const ObjectId = mongoose.Types.ObjectId;
+const Socket = require('../../Services/Socket')
 
 const {
 	exist,
@@ -75,6 +76,8 @@ function list(userId, query = {}) {
 		],
 	};
 
+	console.log(user)
+
 	return Workspace
 		.find(criteria)
 		.sort({modified_at: -1})
@@ -96,6 +99,9 @@ function create({creator, title, description, start, end, participants}) {
 	return new Workspace(object)
 		.save()
 		.then(workspace => {
+			if(object.participants.length > 0){
+				Socket.updateWorkspacesList(object.participants)
+			}
 			return prepare(workspace);
 			// const handler = (resolve, reject) => {
 			// 	workspace

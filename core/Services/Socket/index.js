@@ -147,9 +147,17 @@ class SocketService {
 		}
 	}
 
-	updateBlackList(usersId) {
-		let user = this.clients.findByUser(usersId)
-		if (user) user.sockets.forEach(socket => socket.emit('blacklist_update'));
+	updateBlackList(userId) {
+		const client = this.clients.findByUser(userId)
+		if (client) client.sockets.forEach(socket => socket.emit('blacklist_update'));
+	}
+
+	updateWorkspacesList(participants) {
+		participants.forEach((participant) => {
+			const client = this.clients.findByUser(participant);
+
+			if (client) client.sockets.forEach(socket => socket.emit('workpaces_list_update'))
+		})
 	}
 }
 

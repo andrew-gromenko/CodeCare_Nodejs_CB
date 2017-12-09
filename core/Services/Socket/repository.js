@@ -69,7 +69,7 @@ class Clients {
 			}
 
 			return this.online();
-		} catch(error) {
+		} catch (error) {
 			console.log(error);
 		}
 	}
@@ -80,7 +80,7 @@ class Clients {
 
 			if (client) {
 				const index = findIndex(this.list, client);
-				const {user, sockets} = client;
+				const { user, sockets } = client;
 
 				if (sockets.length > 1) {
 					const updated = {
@@ -128,7 +128,7 @@ class Clients {
 	}
 
 
-	friends({following, followers}, type = 'deep') {
+	friends({ following, followers }, type = 'deep') {
 		try {
 			const friends = uniq([...following, ...followers])
 				.map(person => this.findByUser(person));
