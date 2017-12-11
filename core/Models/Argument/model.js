@@ -32,6 +32,11 @@ const Argument = new Schema({
 		type: Schema.ObjectId, ref: 'Comment',
 	}],
 
+	commentsCount: {
+		type: Number,
+		default: 0
+	},
+
 	created_at: {
 		type: Date,
 		default: Date.now,

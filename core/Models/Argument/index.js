@@ -79,6 +79,7 @@ function addComment(argueId, comment) {
 						argument.comments.splice(0, 1);
 
 					argument.comments.push(comment.id);
+					argument.commentsCount += 1;
 					argument.save()
 						.then(_ => resolve(comment));
 				});
@@ -90,7 +91,7 @@ function list(workspaceId, query = {}) {
 		...query,
 		workspace: ObjectId(workspaceId),
 	};
-
+	
 	return Argument
 		.find(criteria)
 		.sort({created_at: -1})
@@ -102,7 +103,7 @@ function list(workspaceId, query = {}) {
 		})
 		.then(argues => {
 			if (!argues) return [];
-
+			
 			return argues
 				.map(argue => {
 					argue = prettify(argue);
@@ -221,7 +222,6 @@ function react(id, {issuer, type, value}) {
 		case 'vote': {
 			return update(id, byAction(action, {votes: issuer}));
 		}
-
 		default: {
 			throw new Error(`Type should be one of the ["like", "vote"]. Given ${type}`);
 		}

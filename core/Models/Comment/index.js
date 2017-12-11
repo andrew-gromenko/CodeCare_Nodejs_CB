@@ -36,7 +36,6 @@ module.exports = {
 
 function list(modelId, query) {
 	// TODO: should support query
-
 	return Comment
 		.find({belongs_to: modelId})
 		.populate('replied_to')

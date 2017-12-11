@@ -75,7 +75,7 @@ function list(request, response) {
 	// TODO: should can return list of media files (select)
 	Comment.list(id)
 			.then(comments =>
-					response.send(successHandler({comments})))
+					response.send(successHandler({id, comments})))
 			.catch(error =>
 					response.send(errorHandler(error)));
 }
