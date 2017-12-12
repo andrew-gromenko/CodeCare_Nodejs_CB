@@ -25,7 +25,9 @@ const Argument = new Schema({
 	}],
 
 	media: {
-		type: Schema.ObjectId, ref: 'Media',
+		type: String,
+		ref: 'Media',
+		default: ''
 	},
 
 	comments: [{

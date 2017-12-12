@@ -67,13 +67,14 @@ function owned(issuerId, query = {}) {
 		});
 }
 
-function create({issuer, body, media, belongs_to, replied_to}) {
+function create({issuer, body, media, belongs_to, replied_to, workspace}) {
 	const object = {
 		issuer,
 		body,
 		media,
 		belongs_to,
 		replied_to,
+		workspace
 	};
 
 	return new Comment(object).save()

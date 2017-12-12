@@ -1,4 +1,5 @@
 const Argument = require('../Models/Argument');
+const Socket = require('../Services/Socket/index');
 
 /**
  * =======
@@ -80,11 +81,11 @@ function create(request, response) {
 		body: {body, media},
 		params: {workspace},
 	} = request;
-
 	Argument.create({issuer: _user.id, workspace, body, media})
-		.then(argue =>
-			response.send(successHandler({argue})))
-		.catch(error =>
+		.then(argue =>{
+			Socket.updateArguesList(workspace, _user.id)
+			response.send(successHandler({argue}))
+		}).catch(error =>
 			response.send(errorHandler(error)));
 }
 

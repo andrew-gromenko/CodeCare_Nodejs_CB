@@ -157,7 +157,18 @@ class SocketService {
 			const client = this.clients.findByUser(participant);
 
 			if (client) client.sockets.forEach(socket => socket.emit('workpaces_list_update'))
+
 		})
+	}
+
+	updateArguesList(workspace, issuer) {
+		const client = this.clients.findByUser(issuer);
+		if (client) client.sockets.forEach(socket => socket.to(workspace).emit('workspace_argues_update', { workspace }));
+	}
+
+	updateArgueComments(workspace, issuer){
+		const client = this.clients.findByUser(issuer);
+		if (client) client.sockets.forEach(socket => socket.to(workspace).emit('argument_comments_update', { workspace }));
 	}
 }
 
