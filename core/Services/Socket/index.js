@@ -154,10 +154,8 @@ class SocketService {
 
 	updateWorkspacesList(participants) {
 		participants.forEach((participant) => {
-			const client = this.clients.findByUser(participant);
-
+			const client = this.clients.findByUser(participant.toString());
 			if (client) client.sockets.forEach(socket => socket.emit('workpaces_list_update'))
-
 		})
 	}
 
@@ -166,7 +164,7 @@ class SocketService {
 		if (client) client.sockets.forEach(socket => socket.to(workspace).emit('workspace_argues_update', { workspace }));
 	}
 
-	updateArgueComments(workspace, issuer){
+	updateArgueComments(workspace, issuer) {
 		const client = this.clients.findByUser(issuer);
 		if (client) client.sockets.forEach(socket => socket.to(workspace).emit('argument_comments_update', { workspace }));
 	}

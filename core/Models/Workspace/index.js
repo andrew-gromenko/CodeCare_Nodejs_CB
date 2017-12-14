@@ -129,7 +129,7 @@ function update(id, options) {
 		// .populate(populate('user', 'participants'))
 		.then(model => {
 			exist(model);
-
+			Socket.updateWorkspacesList(model.participants)
 			return prepare(model);
 		});
 }
