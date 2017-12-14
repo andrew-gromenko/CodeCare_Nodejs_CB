@@ -24,8 +24,7 @@ router.route('/:workspace')
 	.patch(workspaces.archive)
 
 	// Remove workspace entity
-	.delete(workspaces.remove);
-
+router.route('/:workspace/remove').post(workspaces.remove);
 
 /* Members */
 router.route('/:workspace/members')
