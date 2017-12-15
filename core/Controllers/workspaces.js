@@ -117,13 +117,11 @@ function create(request, response) {
 
 function update(request, response) {
 	const {
-		body: { title, description, start, end },
+		body: { title, description, start, end, participants, oldParticipants },
 		params: { workspace },
 	} = request;
-
-	// TODO: should update only 'title', 'description', 'start', 'end'
-	// TODO: Send from application all this fields
-	Workspace.update(workspace, { title, description, start, end })
+	console.log(request.body)
+	Workspace.update(workspace, { title, description, start, end, participants, oldParticipants })
 		.then(document =>
 			response.send(successHandler({ workspace: document })))
 		.catch(error =>

@@ -125,9 +125,8 @@ function update(id, options) {
 
 	return Workspace
 		.findOneAndUpdate({_id: ObjectId(id)}, query, instructions)
-		// .populate(populate('user', 'creator'))
-		// .populate(populate('user', 'participants'))
 		.then(model => {
+			Socket.updateWorkspacesList(options.oldParticipants)
 			exist(model);
 			
 			return prepare(model);
