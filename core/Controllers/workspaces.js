@@ -120,8 +120,18 @@ function update(request, response) {
 		body: { title, description, start, end, participants, oldParticipants },
 		params: { workspace },
 	} = request;
-	console.log(request.body)
 	Workspace.update(workspace, { title, description, start, end, participants, oldParticipants })
+		.then(document => {
+			return Argument.count([document.id])
+				.then(counts => {
+					const count = counts.find(argue => document.id === argue.id)
+					if (count) {
+						delete count.id;
+						return { ...document, counts: count }
+					}
+					return { ...document, counts: { likes: 0, votes: 0, argues: 0 } }
+				})
+		})
 		.then(document =>
 			response.send(successHandler({ workspace: document })))
 		.catch(error =>
