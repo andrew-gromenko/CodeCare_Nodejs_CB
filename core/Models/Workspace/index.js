@@ -76,8 +76,6 @@ function list(userId, query = {}) {
 		],
 	};
 
-	console.log(user)
-
 	return Workspace
 		.find(criteria)
 		.sort({modified_at: -1})
@@ -120,8 +118,11 @@ function update(id, options) {
 	const instructions = {'new': true, runValidators: true};
 	const query = {
 		...options,
+		starts_at: options.start,
+		ends_at: options.end,
 		'$currentDate': {modified_at: true},
 	};
+	console.log(options)
 
 	return Workspace
 		.findOneAndUpdate({_id: ObjectId(id)}, query, instructions)
