@@ -117,10 +117,10 @@ function create(request, response) {
 
 function update(request, response) {
 	const {
-		body: { title, description, start, end, participants, oldParticipants },
+		body: { title, description, start, end, participants, oldParticipants, archived },
 		params: { workspace },
 	} = request;
-	Workspace.update(workspace, { title, description, start, end, participants, oldParticipants })
+	Workspace.update(workspace, { title, description, start, end, participants, oldParticipants, archived })
 		.then(document => {
 			return Argument.count([document.id])
 				.then(counts => {

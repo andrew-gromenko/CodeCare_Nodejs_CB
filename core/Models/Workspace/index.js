@@ -122,8 +122,7 @@ function update(id, options) {
 		ends_at: options.end,
 		'$currentDate': {modified_at: true},
 	};
-	console.log(options)
-
+	
 	return Workspace
 		.findOneAndUpdate({_id: ObjectId(id)}, query, instructions)
 		.then(model => {
