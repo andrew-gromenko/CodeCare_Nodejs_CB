@@ -50,27 +50,27 @@ function successHandler(data) {
 
 function one(request, response) {
 	const {
-		params: {argue},
+		params: { argue },
 	} = request;
 
 	// TODO: Should return Argument with: 50 comments > 5 replies
 	Argument.one(argue)
 		.then(argue =>
-			response.send(successHandler({argue})))
+			response.send(successHandler({ argue })))
 		.catch(error =>
 			response.send(errorHandler(error)));
 }
 
 function list(request, response) {
 	const {
-		params: {workspace},
+		params: { workspace },
 	} = request;
 
 	// TODO: should can take `query` and return list base on it (filter/sort/limit)
 	// TODO: should can return list of media files (select)
 	Argument.list(workspace)
 		.then(argues =>
-			response.send(successHandler({workspace, argues})))
+			response.send(successHandler({ workspace, argues })))
 		.catch(error =>
 			response.send(errorHandler(error)));
 }
@@ -78,39 +78,42 @@ function list(request, response) {
 function create(request, response) {
 	const {
 		_user,
-		body: {body, media},
-		params: {workspace},
+		body: { body, media },
+		params: { workspace },
 	} = request;
-	Argument.create({issuer: _user.id, workspace, body, media})
-		.then(argue =>{
+	Argument.create({ issuer: _user.id, workspace, body, media })
+		.then(argue => {
 			Socket.updateArguesList(workspace, _user.id)
-			response.send(successHandler({argue}))
+			response.send(successHandler({ argue }))
 		}).catch(error =>
 			response.send(errorHandler(error)));
 }
 
 function update(request, response) {
 	const {
-		body: {body, media},
-		params: {argue},
+		body: { body, media },
+		params: { argue },
 	} = request;
 
-	Argument.edit(argue, {body, media})
+	Argument.edit(argue, { body, media })
 		.then(argue =>
-			response.send(successHandler({argue})))
+			response.send(successHandler({ argue })))
 		.catch(error =>
 			response.send(errorHandler(error)));
 }
 
 function remove(request, response) {
 	const {
-		params: {argue},
+		_user,
+		params: { argue },
 	} = request;
 
 	// TODO: should remove all comments
 	Argument.remove(argue)
-		.then(argue =>
-			response.send(successHandler({argue})))
+		.then(argue => {
+			Socket.updateArguesList(argue.workspace, _user.id)
+			return response.send(successHandler({ argue }))
+		})
 		.catch(error =>
 			response.send(errorHandler(error)));
 }
@@ -118,15 +121,15 @@ function remove(request, response) {
 function react(request, response) {
 	const {
 		_user,
-		body: {type, value}, // Action should be `{type: 'like/vote', value: 1/-1}`
-		params: {argue},
+		body: { type, value }, // Action should be `{type: 'like/vote', value: 1/-1}`
+		params: { argue },
 	} = request;
 
 	// TODO: Should send notification to creator of this argument if like
 	// TODO: Should send notification to all participants if vote
-	Argument.react(argue, {issuer: _user.id, type, value})
+	Argument.react(argue, { issuer: _user.id, type, value })
 		.then(argue =>
-			response.send(successHandler({argue})))
+			response.send(successHandler({ argue })))
 		.catch(error =>
 			response.send(errorHandler(error)));
 }
