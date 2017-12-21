@@ -91,13 +91,16 @@ function create(request, response) {
 
 function update(request, response) {
 	const {
-		body: { body, media },
+		_user,
+		body: { body, media, workspace },
 		params: { argue },
 	} = request;
 
 	Argument.edit(argue, { body, media })
-		.then(argue =>
-			response.send(successHandler({ argue })))
+		.then(argue =>{
+			Socket.updateArguesList(workspace, _user.id)
+			response.send(successHandler({ argue }))
+		})
 		.catch(error =>
 			response.send(errorHandler(error)));
 }
