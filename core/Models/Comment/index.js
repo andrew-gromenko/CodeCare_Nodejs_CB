@@ -37,7 +37,7 @@ module.exports = {
 function list(modelId, query) {
 	// TODO: should support query
 	return Comment
-		.find({belongs_to: modelId})
+		.find({ belongs_to: modelId })
 		.populate('replied_to')
 		.then(models => {
 			return models.map(model => {
@@ -59,7 +59,7 @@ function owned(issuerId, query = {}) {
 
 	return Comment
 		.find(criteria)
-		.sort({created_at: -1})
+		.sort({ created_at: -1 })
 		.then(models => {
 			if (!models) return [];
 
@@ -67,7 +67,7 @@ function owned(issuerId, query = {}) {
 		});
 }
 
-function create({issuer, body, media, belongs_to, replied_to, workspace}) {
+function create({ issuer, body, media, belongs_to, replied_to, workspace }) {
 	const object = {
 		issuer,
 		body,
@@ -78,8 +78,8 @@ function create({issuer, body, media, belongs_to, replied_to, workspace}) {
 	};
 
 	return new Comment(object).save()
-		.then(({id}) => {
-			return Comment.findOne({_id: id})
+		.then(({ id }) => {
+			return Comment.findOne({ _id: id })
 				.populate('replied_to')
 				.then(comment => {
 					comment = prettify(comment);
@@ -93,14 +93,14 @@ function create({issuer, body, media, belongs_to, replied_to, workspace}) {
 }
 
 function update(id, options) {
-	const instructions = {'new': true, runValidators: true};
+	const instructions = { 'new': true, runValidators: true };
 	const query = {
 		...options,
-		'$currentDate': {modified_at: true},
+		'$currentDate': { modified_at: true },
 	};
 
 	return Comment
-		.findOneAndUpdate({_id: ObjectId(id)}, query, instructions)
+		.findOneAndUpdate({ _id: ObjectId(id) }, query, instructions)
 		.then(model => {
 			exist(model);
 
@@ -109,9 +109,9 @@ function update(id, options) {
 }
 
 // TODO: perhaps should use deleteMany
-function remove(id) {
+function remove({ workspace, argue, comment }) {
 	return Comment
-		.findOneAndRemove({_id: ObjectId(id)})
+		.findOneAndRemove({ _id: ObjectId(comment) })
 		.then(model => {
 			exist(model);
 
@@ -119,8 +119,8 @@ function remove(id) {
 		});
 }
 
-function edit({id, body, media}) {
-	const options = {'$set': {body, media}};
+function edit({ id, body, media }) {
+	const options = { '$set': { body, media } };
 
 	return update(id, options);
 }

@@ -20,6 +20,7 @@ module.exports = {
 	owned,
 
 	addComment,
+	removeComment,
 	create,
 	update,
 	remove,
@@ -44,7 +45,7 @@ module.exports = {
  */
 function one(id) {
 	return Argument
-		.findOne({_id: ObjectId(id)})
+		.findOne({ _id: ObjectId(id) })
 		.then(argue => {
 			exist(argue);
 
@@ -60,7 +61,7 @@ function owned(issuerId, query = {}) {
 
 	return Argument
 		.find(criteria)
-		.sort({created_at: -1})
+		.sort({ created_at: -1 })
 		.then(argues => {
 			if (!argues) return [];
 
@@ -70,19 +71,36 @@ function owned(issuerId, query = {}) {
 
 function addComment(argueId, comment) {
 	return new Promise(resolve => {
-		Argument.findOne({_id: ObjectId(argueId)})
-				.then(argument => {
-					if (!argument)
-						return reject(new Error('No argument.'));
+		Argument.findOne({ _id: ObjectId(argueId) })
+			.then(argument => {
+				if (!argument)
+					return reject(new Error('No argument.'));
 
-					if (argument.comments.length >= 5)
-						argument.comments.splice(0, 1);
+				if (argument.comments.length >= 5)
+					argument.comments.splice(0, 1);
 
-					argument.comments.push(comment.id);
-					argument.commentsCount += 1;
-					argument.save()
-						.then(_ => resolve(comment));
-				});
+				argument.comments.push(comment.id);
+				argument.commentsCount += 1;
+				argument.save()
+					.then(_ => resolve(comment));
+			});
+	});
+}
+
+function removeComment(argueId, comments) {
+	return new Promise(resolve => {
+		Argument.findOne({ _id: ObjectId(argueId) })
+			.then(argument => {
+				if (!argument)
+					return reject(new Error('No argument.'));
+					
+				argument.comments = comments.map(comment => comment.id).slice(comments.length - 5, comments.length)
+				argument.commentsCount -= 1;
+				argument.save()
+					.then(_ => {
+						return resolve('updated')
+					});
+			});
 	});
 }
 
@@ -91,10 +109,10 @@ function list(workspaceId, query = {}) {
 		...query,
 		workspace: ObjectId(workspaceId),
 	};
-	
+
 	return Argument
 		.find(criteria)
-		.sort({created_at: -1})
+		.sort({ created_at: -1 })
 		.populate({
 			path: 'comments',
 			populate: {
@@ -103,7 +121,7 @@ function list(workspaceId, query = {}) {
 		})
 		.then(argues => {
 			if (!argues) return [];
-			
+
 			return argues
 				.map(argue => {
 					argue = prettify(argue);
@@ -121,7 +139,7 @@ function list(workspaceId, query = {}) {
 		});
 }
 
-function create({issuer, workspace, body, media}) {
+function create({ issuer, workspace, body, media }) {
 	const object = {
 		issuer,
 		workspace,
@@ -150,14 +168,14 @@ function create({issuer, workspace, body, media}) {
 }
 
 function update(id, options) {
-	const instructions = {'new': true, runValidators: true};
+	const instructions = { 'new': true, runValidators: true };
 	const query = {
 		...options,
-		'$currentDate': {modified_at: true},
+		'$currentDate': { modified_at: true },
 	};
 
 	return Argument
-		.findOneAndUpdate({_id: ObjectId(id)}, query, instructions)
+		.findOneAndUpdate({ _id: ObjectId(id) }, query, instructions)
 		.then(model => {
 			exist(model);
 
@@ -167,7 +185,7 @@ function update(id, options) {
 
 function remove(id) {
 	return Argument
-		.findOneAndRemove({_id: ObjectId(id)})
+		.findOneAndRemove({ _id: ObjectId(id) })
 		.then(model => {
 			exist(model);
 
@@ -175,8 +193,8 @@ function remove(id) {
 		});
 }
 
-function edit(id, {body, media}) {
-	return update(id, {body, media});
+function edit(id, { body, media }) {
+	return update(id, { body, media });
 }
 
 /**
@@ -187,21 +205,27 @@ function edit(id, {body, media}) {
 function count(list) {
 	const workspaces = list.map(id => ObjectId(id));
 	const aggregate = [
-		{"$project": {
-			_id: 1,
-			workspace: 1,
-			likes: {"$size": "$likes"},
-			votes: {"$size": "$votes"},
-		}},
-		{"$match": {
-			workspace: {"$in": workspaces},
-		}},
-		{"$group": {
-			_id: "$workspace",
-			likes: {"$sum": "$likes"},
-			votes: {"$sum": "$votes"},
-			argues: {"$sum": 1},
-		}}
+		{
+			"$project": {
+				_id: 1,
+				workspace: 1,
+				likes: { "$size": "$likes" },
+				votes: { "$size": "$votes" },
+			}
+		},
+		{
+			"$match": {
+				workspace: { "$in": workspaces },
+			}
+		},
+		{
+			"$group": {
+				_id: "$workspace",
+				likes: { "$sum": "$likes" },
+				votes: { "$sum": "$votes" },
+				argues: { "$sum": 1 },
+			}
+		}
 	];
 
 	console.time('===== Aggregate ____count(workspaces)____ =====');
@@ -212,15 +236,15 @@ function count(list) {
 		.finally(() => console.timeEnd('===== Aggregate ____count(workspaces)____ ====='));
 }
 
-function react(id, {issuer, type, value}) {
+function react(id, { issuer, type, value }) {
 	const action = Object.is(parseInt(value), 1) ? 'push' : 'pull';
 
 	switch (type) {
 		case 'like': {
-			return update(id, byAction(action, {likes: issuer}));
+			return update(id, byAction(action, { likes: issuer }));
 		}
 		case 'vote': {
-			return update(id, byAction(action, {votes: issuer}));
+			return update(id, byAction(action, { votes: issuer }));
 		}
 		default: {
 			throw new Error(`Type should be one of the ["like", "vote"]. Given ${type}`);
@@ -229,5 +253,5 @@ function react(id, {issuer, type, value}) {
 }
 
 function comments(id, comment, action) {
-	return update(id, byAction(action, {comments: comment}));
+	return update(id, byAction(action, { comments: comment }));
 }

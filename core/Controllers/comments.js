@@ -114,13 +114,24 @@ function update(request, response) {
 
 function remove(request, response) {
 	const {
-			params: { comment },
+			_user,
+		params: { comment },
+		body
 	} = request;
 
 	// TODO: should remove all comments
-	Comment.remove(comment)
-		.then(comment =>
-			response.send(successHandler({ comment })))
+	Comment.remove(body)
+		.then(comment => {
+			Comment.list(body.argue)
+				.then(comments => {
+					Argument.removeComment(body.argue, comments)
+						.then(_ => {
+							console.log('~~~~~~~~~~~~~~~~~~~~~~!!!!!!!!!!!!!!!!!!!!123!!!!!!!!!!!!!!!!!!!!~~~~~~~~~~~~~~~~~~~~~')
+							Socket.updateArgueComments(body.workspace, _user.id)
+							return response.send(successHandler({ comment }))
+						})
+				})
+		})
 		.catch(error =>
 			response.send(errorHandler(error)));
 }

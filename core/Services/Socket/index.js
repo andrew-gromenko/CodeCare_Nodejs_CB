@@ -165,7 +165,7 @@ class SocketService {
 	}
 
 	updateArgueComments(workspace, issuer) {
-		const client = this.clients.findByUser(issuer);
+		const client = this.clients.findByUser(issuer.toString());
 		if (client) client.sockets.forEach(socket => socket.to(workspace).emit('argument_comments_update', { workspace }));
 	}
 }
