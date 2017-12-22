@@ -97,7 +97,7 @@ function update(request, response) {
 	} = request;
 
 	Argument.edit(argue, { body, media })
-		.then(argue =>{
+		.then(argue => {
 			Socket.updateArguesList(workspace, _user.id)
 			response.send(successHandler({ argue }))
 		})
@@ -124,15 +124,17 @@ function remove(request, response) {
 function react(request, response) {
 	const {
 		_user,
-		body: { type, value }, // Action should be `{type: 'like/vote', value: 1/-1}`
+		body: { workspace, type, value }, // Action should be `{type: 'like/vote', value: 1/-1}`
 		params: { argue },
 	} = request;
 
 	// TODO: Should send notification to creator of this argument if like
 	// TODO: Should send notification to all participants if vote
 	Argument.react(argue, { issuer: _user.id, type, value })
-		.then(argue =>
-			response.send(successHandler({ argue })))
+		.then(argue => {
+			Socket.updateArguesList(argue.workspace, _user.id)
+			return response.send(successHandler({ argue }))
+		})
 		.catch(error =>
 			response.send(errorHandler(error)));
 }
