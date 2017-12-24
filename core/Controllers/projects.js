@@ -1,4 +1,4 @@
-
+const Project = require('../Models/Project');
 /**
  * =======
  * Exports
@@ -6,6 +6,9 @@
  */
 
 module.exports = {
+	create,
+	list,
+	remove
 };
 
 
@@ -37,3 +40,38 @@ function successHandler(data) {
  * Core
  * =======
  */
+
+function create(request, response) {
+	const {
+		_user,
+		body,
+	} = request;
+	Project.create({ creator: _user.id, ...body })
+		.then(project => {
+			return response.send(successHandler({ ...project }))
+		})
+		.catch(error =>
+			response.send(errorHandler(error)));
+}
+
+function list(request, response) {
+	const { _user } = request;
+
+	Project.list(_user.id)
+		.then(projects =>
+			response.send(successHandler([...projects])))
+		.catch(error =>
+			response.send(errorHandler(error)));
+}
+
+function remove(request, response) {
+	const {
+		params: { project },
+	} = request;
+
+	Project.remove(project)
+		.then(document =>
+			response.send(successHandler(project)))
+		.catch(error =>
+			response.send(errorHandler(error)));
+}
