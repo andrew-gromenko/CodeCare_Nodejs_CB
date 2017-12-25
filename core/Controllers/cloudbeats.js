@@ -172,12 +172,14 @@ function update(request, response) {
 		.then((res) => {
 			response.send(successHandler(res))
 		})
+		.catch(error =>
+			response.send(errorHandler(error)));
 }
 
-function remove (request, response) {
+function remove(request, response) {
 	Media.remove(request.params.userId)
-		.then((res)=>{
+		.then((res) => {
 			Bucket.remove([res])
-			.then((res)=> response.send(res.Deleted))
+				.then((res) => response.send(res.Deleted))
 		})
 }

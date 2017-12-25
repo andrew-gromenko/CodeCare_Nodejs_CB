@@ -8,7 +8,9 @@ const Project = require('../Models/Project');
 module.exports = {
 	create,
 	list,
-	remove
+	remove,
+	update,
+	listById
 };
 
 
@@ -74,4 +76,25 @@ function remove(request, response) {
 			response.send(successHandler(project)))
 		.catch(error =>
 			response.send(errorHandler(error)));
+}
+
+function update(request, response) {
+	const {
+		params: { project },
+		body
+	} = request
+
+	Project.update(project, body)
+		.then(project => response.send(successHandler(project)))
+		.catch(error => response.send(errorHandler(error)));
+}
+
+function listById(request, response) {
+		const { params: { user } } = request;
+
+		Project.list(user)
+			.then(projects =>
+				response.send(successHandler({user, projects: [...projects]})))
+			.catch(error =>
+				response.send(errorHandler(error)));
 }

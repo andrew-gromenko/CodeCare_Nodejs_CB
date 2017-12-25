@@ -13,12 +13,11 @@ const {
  */
 
 module.exports = {
-    // one,
     list,
     create,
     remove,
-    // update,
-    // edit,
+    update,
+    listById
 };
 
 /**
@@ -71,20 +70,23 @@ function remove(id) {
         .then(project => prettify(project));
 }
 
-// function update(id, options) {
-// 	const instructions = { 'new': true, runValidators: true };
-// 	const query = {
-// 		...options
-// 	};
-// 	return Media
-// 		.findOneAndUpdate({ _id: ObjectId(id) }, query, instructions)
-// 		.then(model => {
-// 			exist(model);
+function update(id, options) {
+    const instructions = { 'new': true, runValidators: true };
+    const query = {
+        ...options,
+        '$currentDate': { modified_at: true },
+    };
+    return Project
+        .findOneAndUpdate({ _id: ObjectId(id) }, query, instructions)
+        .then(project => {
+            exist(project);
 
-// 			return prettify(model);
-// 		});
-// }
+            return prettify(project);
+        });
+}
 
-// function edit(id, { name }) {
-// 	return update(id, { '$set': { file_name: name } });
-// }
+function listById(userId) {
+    return Project
+        .find({ creator: ObjectId(userId) })
+        .then(projects => projects.filter(project => !project.privacy).map(project => prettify(project)));
+}
