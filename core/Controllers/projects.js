@@ -10,7 +10,8 @@ module.exports = {
 	list,
 	remove,
 	update,
-	listById
+	listById, 
+	react
 };
 
 
@@ -90,11 +91,27 @@ function update(request, response) {
 }
 
 function listById(request, response) {
-		const { params: { user } } = request;
+	const { params: { user } } = request;
 
-		Project.list(user)
-			.then(projects =>
-				response.send(successHandler({user, projects: [...projects]})))
-			.catch(error =>
-				response.send(errorHandler(error)));
+	Project.list(user)
+		.then(projects =>
+			response.send(successHandler({ user, projects: [...projects] })))
+		.catch(error =>
+			response.send(errorHandler(error)));
+}
+
+
+function react(request, response) {
+	const {
+		_user,
+		body: { type, value }, // Action should be `{type: 'like', value: 1/-1}`
+		params: { project },
+	} = request;
+
+	Project.react(project, { issuer: _user.id, type, value })
+		.then(project => {
+			return response.send(successHandler({ project }))
+		})
+		.catch(error =>
+			response.send(errorHandler(error)));
 }

@@ -17,7 +17,8 @@ module.exports = {
     create,
     remove,
     update,
-    listById
+    listById,
+    react
 };
 
 /**
@@ -26,6 +27,27 @@ module.exports = {
  * =======
  */
 
+function byAction(action, query) {
+    const options = {};
+
+    switch (action) {
+        case 'push': {
+            options['$addToSet'] = query;
+
+            return options;
+        }
+
+        case 'pull': {
+            options['$pull'] = query;
+
+            return options;
+        }
+
+        default: {
+            throw new Error(`Action should be one of the ["push", "pull"]. Given ${action}`);
+        }
+    }
+}
 
 /**
  * ====
@@ -79,6 +101,7 @@ function update(id, options) {
     return Project
         .findOneAndUpdate({ _id: ObjectId(id) }, query, instructions)
         .then(project => {
+            console.log(project)
             exist(project);
 
             return prettify(project);
@@ -89,4 +112,17 @@ function listById(userId) {
     return Project
         .find({ creator: ObjectId(userId) })
         .then(projects => projects.filter(project => !project.privacy).map(project => prettify(project)));
+}
+
+function react(id, { issuer, type, value }) {
+    const action = Object.is(parseInt(value), 1) ? 'push' : 'pull';
+
+    switch (type) {
+        case 'like': {
+            return update(id, byAction(action, { likes: issuer }));
+        }
+        default: {
+            throw new Error(`Type should be one of the ["like"]. Given ${type}`);
+        }
+    }
 }
