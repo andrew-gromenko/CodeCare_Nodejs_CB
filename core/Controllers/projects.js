@@ -11,7 +11,8 @@ module.exports = {
 	remove,
 	update,
 	listById, 
-	react
+	react,
+	listByIds
 };
 
 
@@ -92,10 +93,18 @@ function update(request, response) {
 
 function listById(request, response) {
 	const { params: { user } } = request;
-
-	Project.list(user)
+	Project.listById([user])
 		.then(projects =>
 			response.send(successHandler({ user, projects: [...projects] })))
+		.catch(error =>
+			response.send(errorHandler(error)));
+}
+
+function listByIds(request, response) {
+	const {body : {users} } = request
+	Project.listById(users)
+		.then(projects =>
+			response.send(successHandler({ projects: [...projects] })))
 		.catch(error =>
 			response.send(errorHandler(error)));
 }

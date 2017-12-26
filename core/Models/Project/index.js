@@ -101,7 +101,6 @@ function update(id, options) {
     return Project
         .findOneAndUpdate({ _id: ObjectId(id) }, query, instructions)
         .then(project => {
-            console.log(project)
             exist(project);
 
             return prettify(project);
@@ -109,8 +108,10 @@ function update(id, options) {
 }
 
 function listById(userId) {
+    const ids = userId.map(id => ObjectId(id))
+    
     return Project
-        .find({ creator: ObjectId(userId) })
+        .find({ creator: { '$in': ids } })
         .then(projects => projects.filter(project => !project.privacy).map(project => prettify(project)));
 }
 
@@ -125,4 +126,4 @@ function react(id, { issuer, type, value }) {
             throw new Error(`Type should be one of the ["like"]. Given ${type}`);
         }
     }
-}
+} ``

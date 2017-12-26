@@ -25,4 +25,6 @@ router.route('/:user')
 	//Get list of user's projects by Id (only public projects)
 	.get(projects.listById)
 
+router.route('/following/list').post(projects.listByIds);
+
 module.exports = router;
