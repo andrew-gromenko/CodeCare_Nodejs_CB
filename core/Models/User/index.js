@@ -81,7 +81,7 @@ function list(query) {
 			users.map(user => prepare(user)));
 }
 
-function create({email, username, password}) {
+function create({ email, username, password }) {
 	const object = {
 		email,
 		name: username,
@@ -96,19 +96,19 @@ function create({email, username, password}) {
 			if (error.code === 11000) {
 				throw new Error('User already exists');
 			}
-			
+
 			throw error;
 		});
 }
 
 function update(id, options) {
-	const instructions = {'new': true, runValidators: true};
+	const instructions = { 'new': true, runValidators: true };
 	const query = {
 		...options,
-		'$currentDate': {modified_at: true},
+		'$currentDate': { modified_at: true },
 	};
 	return User
-		.findOneAndUpdate({_id: ObjectId(id)}, query, instructions)
+		.findOneAndUpdate({ _id: ObjectId(id) }, query, instructions)
 		.then(model => {
 			exist(model);
 
@@ -119,14 +119,14 @@ function update(id, options) {
 
 // TODO: should hash password if changed
 function edit(id, fields) {
-	const options = {'$set': fields};
+	const options = { '$set': fields };
 
 	return update(id, options);
 }
 
-function verify({email, password}) {
+function verify({ email, password }) {
 	return User
-		.findOne({email})
+		.findOne({ email })
 		.then(user => {
 			exist(user);
 
@@ -144,28 +144,28 @@ function verify({email, password}) {
 }
 
 function oneById(id) {
-	return byField({_id: ObjectId(id)});
+	return byField({ _id: ObjectId(id) });
 }
 
 function oneByEmail(email) {
-	return byField({email});
+	return byField({ email });
 }
 
 function oneByUsername(username) {
-	return byField({username});
+	return byField({ username });
 }
 
 function follow(follower, following) {
 	return Promise.all([
-		update(follower, {'$addToSet': {following: following}}),
-		update(following, {'$addToSet': {followers: follower}}),
+		update(follower, { '$addToSet': { following: following } }),
+		update(following, { '$addToSet': { followers: follower } }),
 	]);
 }
 
 function unfollow(follower, following) {
 	return Promise.all([
-		update(follower, {'$pull': {following: following}}),
-		update(following, {'$pull': {followers: follower}}),
+		update(follower, { '$pull': { following: following } }),
+		update(following, { '$pull': { followers: follower } }),
 	]);
 }
 
@@ -176,19 +176,19 @@ function followers(id) {
 		.then(user => {
 			exist(user);
 
-			const {id, followers, following} = prepare(user);
+			const { id, followers, following } = prepare(user);
 
-			return {id, followers, following};
+			return { id, followers, following };
 		})
 }
 
-function view(id){
-	return User.findOneAndUpdate({_id: ObjectId(id)}, query, instructions)
-	.then(model => {
-		exist(model);
-
-		return prepare(model);
-	});
+function view(id) {
+	console.log(id)
+	return User.findOneAndUpdate({ _id: ObjectId(id) }, { '$inc': { "views": 1 } })
+		.then(model => {
+			console.log('MODEL', model)
+			return model
+		});
 }
 // function followers(id) {
 // 	return User

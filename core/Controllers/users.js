@@ -144,10 +144,11 @@ function relationships(request, response) {
 }
 
 function view(request, response) {
-	const { body: { id } } = request;
+	const { params: { id } } = request;
 	User.view(id)
-		.then(result =>
-			response.send(successHandler(result)))
+		.then(result => {
+			return response.send(successHandler(`${id} views counter increment succeeded`))
+		})
 		.catch(error =>
 			response.send(errorHandler(error)));
 }

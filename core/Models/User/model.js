@@ -1,5 +1,3 @@
-import { Number } from 'core-js/library/web/timers';
-
 const mongoose = require('mongoose');
 const bcrypt   = require('bcrypt');
 const isEmail  = require('validator/lib/isEmail');
