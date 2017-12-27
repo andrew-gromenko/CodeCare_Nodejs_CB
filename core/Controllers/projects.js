@@ -10,9 +10,10 @@ module.exports = {
 	list,
 	remove,
 	update,
-	listById, 
+	listById,
 	react,
-	listByIds
+	listByIds, 
+	view
 };
 
 
@@ -101,7 +102,7 @@ function listById(request, response) {
 }
 
 function listByIds(request, response) {
-	const {body : {users} } = request
+	const { body: { users } } = request
 	Project.listById(users)
 		.then(projects =>
 			response.send(successHandler({ projects: [...projects] })))
@@ -123,4 +124,14 @@ function react(request, response) {
 		})
 		.catch(error =>
 			response.send(errorHandler(error)));
+}
+
+function view(request, response) {
+	const {
+		params: { project }
+	} = request;
+
+	Project.view(project)
+		.then(project => response.send(successHandler({ project })))
+		.catch(error => response.send(errorHandler(error)))
 }

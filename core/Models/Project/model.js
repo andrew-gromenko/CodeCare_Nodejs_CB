@@ -26,7 +26,7 @@ const Project = new Schema({
     },
 
     file: {
-        type: String,
+        type: Object,
         default: null
     },
 

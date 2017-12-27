@@ -20,6 +20,9 @@ router.route('/:project')
 	// Update like project entity
 	.patch(projects.react)
 
+	//Update project plays amount
+	.put(projects.view)
+
 router.route('/:user')
 
 	//Get list of user's projects by Id (only public projects)

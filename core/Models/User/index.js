@@ -183,10 +183,8 @@ function followers(id) {
 }
 
 function view(id) {
-	console.log(id)
 	return User.findOneAndUpdate({ _id: ObjectId(id) }, { '$inc': { "views": 1 } })
 		.then(model => {
-			console.log('MODEL', model)
 			return model
 		});
 }

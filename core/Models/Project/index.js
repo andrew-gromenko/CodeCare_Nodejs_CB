@@ -18,7 +18,8 @@ module.exports = {
     remove,
     update,
     listById,
-    react
+    react,
+    view
 };
 
 /**
@@ -109,7 +110,7 @@ function update(id, options) {
 
 function listById(userId) {
     const ids = userId.map(id => ObjectId(id))
-    
+
     return Project
         .find({ creator: { '$in': ids } })
         .then(projects => projects.filter(project => !project.privacy).map(project => prettify(project)));
@@ -126,4 +127,11 @@ function react(id, { issuer, type, value }) {
             throw new Error(`Type should be one of the ["like"]. Given ${type}`);
         }
     }
-} ``
+}
+
+function view(id) {
+    return Project.findOneAndUpdate({ _id: ObjectId(id) }, { '$inc': { "plays": 1 } })
+        .then(model => {
+            return model
+        });
+}
