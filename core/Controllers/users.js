@@ -13,6 +13,7 @@ module.exports = {
 	events,
 	relationship,
 	relationships,
+	view
 };
 
 /**
@@ -44,7 +45,7 @@ function successHandler(data) {
  */
 
 function list(request, response) {
-	const {query} = request;
+	const { query } = request;
 
 	User.list(query)
 		.then(result =>
@@ -54,17 +55,17 @@ function list(request, response) {
 }
 
 function profile(request, response) {
-	const {params: {username}} = request;
+	const { params: { username } } = request;
 
 	User.profile(username)
 		.then(user =>
-			response.send(successHandler({user})))
+			response.send(successHandler({ user })))
 		.catch(error =>
 			response.send(errorHandler(error)));
 }
 
 function events(request, response) {
-	const {params: {user}} = request;
+	const { params: { user } } = request;
 
 	User.events(user)
 		.then(result =>
@@ -74,7 +75,7 @@ function events(request, response) {
 }
 
 function projects(request, response) {
-	const {params: {user}} = request;
+	const { params: { user } } = request;
 
 	User.projects(user)
 		.then(result =>
@@ -94,7 +95,7 @@ function relationship(request, response) {
 		case 'accept': {
 			User.follow(_user.id, params.user)
 				.then(user =>
-					response.send(successHandler({user})))
+					response.send(successHandler({ user })))
 				.catch(error =>
 					response.send(errorHandler(error)));
 
@@ -104,7 +105,7 @@ function relationship(request, response) {
 		case 'follow': {
 			User.follow(_user.id, params.user)
 				.then(user =>
-					response.send(successHandler({user})))
+					response.send(successHandler({ user })))
 				.catch(error =>
 					response.send(errorHandler(error)));
 
@@ -114,7 +115,7 @@ function relationship(request, response) {
 		case 'unfollow': {
 			User.unfollow(_user.id, params.user)
 				.then(user =>
-					response.send(successHandler({user})))
+					response.send(successHandler({ user })))
 				.catch(error =>
 					response.send(errorHandler(error)));
 
@@ -132,10 +133,19 @@ function relationship(request, response) {
 }
 
 function relationships(request, response) {
-	const {params: {user}} = request;
+	const { params: { user } } = request;
 
 	User
 		.followers(user)
+		.then(result =>
+			response.send(successHandler(result)))
+		.catch(error =>
+			response.send(errorHandler(error)));
+}
+
+function view(request, response) {
+	const { body: { id } } = request;
+	User.view(id)
 		.then(result =>
 			response.send(successHandler(result)))
 		.catch(error =>

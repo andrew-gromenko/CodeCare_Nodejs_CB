@@ -30,6 +30,7 @@ module.exports = {
 	follow,
 	unfollow,
 	followers,
+	view
 };
 
 /**
@@ -115,6 +116,7 @@ function update(id, options) {
 		});
 }
 
+
 // TODO: should hash password if changed
 function edit(id, fields) {
 	const options = {'$set': fields};
@@ -180,7 +182,14 @@ function followers(id) {
 		})
 }
 
+function view(id){
+	return User.findOneAndUpdate({_id: ObjectId(id)}, query, instructions)
+	.then(model => {
+		exist(model);
 
+		return prepare(model);
+	});
+}
 // function followers(id) {
 // 	return User
 // 		.findById(ObjectId(id))

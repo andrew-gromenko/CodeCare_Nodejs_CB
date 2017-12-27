@@ -41,6 +41,7 @@ module.exports = {
 	followers,
 
 	socket,
+	view
 };
 
 /**
@@ -64,16 +65,16 @@ function list(query) {
 		}));
 }
 
-function create({email, username, password}) {
-	return User.create({email, username, password})
+function create({ email, username, password }) {
+	return User.create({ email, username, password })
 		.then(selfSelector);
 }
 
 function update(user, options) {
 	const socketUserId = options.socketUserId;
 	return User.edit(user, options)
-		.then((res)=>{
-			if(socketUserId){
+		.then((res) => {
+			if (socketUserId) {
 				Socket.updateBlackList(socketUserId)
 			}
 			return selfSelector(res)
@@ -81,12 +82,12 @@ function update(user, options) {
 }
 
 function remove(user) {
-	return User.edit(user, {__removed: true})
+	return User.edit(user, { __removed: true })
 		.then(selfSelector);
 }
 
 function discard(user) {
-	return User.edit(user, {__removed: false})
+	return User.edit(user, { __removed: false })
 		.then(selfSelector);
 }
 
@@ -175,5 +176,9 @@ function socket(userId) {
 				workspaces,
 			};
 		});
+}
+
+function view(userId) {
+	return User.view(userId)
 }
 

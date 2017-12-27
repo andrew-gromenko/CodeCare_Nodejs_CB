@@ -13,6 +13,9 @@ router.route('/')
 router.route('/:username')
 	.get(users.profile);
 
+router.route('/:id')
+	.patch(users.view)
+	
 router.route('/:user/projects')
 	.get(users.projects);
 
@@ -22,5 +25,6 @@ router.route('/:user/events')
 router.route('/:user/relationships')
 	.get(users.relationships)
 	.post([verification, users.relationship]);
+
 
 module.exports = router;

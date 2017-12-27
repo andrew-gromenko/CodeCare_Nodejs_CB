@@ -1,3 +1,5 @@
+import { Number } from 'core-js/library/web/timers';
+
 const mongoose = require('mongoose');
 const bcrypt   = require('bcrypt');
 const isEmail  = require('validator/lib/isEmail');
@@ -102,7 +104,11 @@ const User = new Schema({
 	},
 	blacklist: [{
 		type: Schema.ObjectId, ref: 'User',
-	}]
+	}],
+	views: {
+		type: Number,
+		default: 0
+	}
 });
 
 function encryptPassword(next, done) {
