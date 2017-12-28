@@ -93,12 +93,16 @@ function remove(id) {
         .then(project => prettify(project));
 }
 
-function update(id, options) {
+function update(id, options, modified = true) {
     const instructions = { 'new': true, runValidators: true };
-    const query = {
-        ...options,
-        '$currentDate': { modified_at: true },
-    };
+    const query = modified ?
+        {
+            ...options,
+            '$currentDate': modified ? { modified_at: true } : {},
+        } :
+        {
+            ...options,
+        }
     return Project
         .findOneAndUpdate({ _id: ObjectId(id) }, query, instructions)
         .then(project => {
@@ -121,7 +125,7 @@ function react(id, { issuer, type, value }) {
 
     switch (type) {
         case 'like': {
-            return update(id, byAction(action, { likes: issuer }));
+            return update(id, byAction(action, { likes: issuer }), false);
         }
         default: {
             throw new Error(`Type should be one of the ["like"]. Given ${type}`);
