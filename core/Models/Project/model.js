@@ -19,6 +19,7 @@ const Project = new Schema({
 
     tag: {
         type: String,
+        default: ''
     },
 
     genre: {
