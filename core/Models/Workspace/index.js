@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const Workspace = mongoose.model('Workspace');
+const Notification = require('../Notification');
 const ObjectId = mongoose.Types.ObjectId;
 const Socket = require('../../Services/Socket')
 
@@ -98,6 +99,15 @@ function create({creator, title, description, start, end, participants}) {
 		.save()
 		.then(workspace => {
 			if(object.participants.length > 0){
+				object.participants.forEach(participant => Notification.create({
+					issuer: object.creator,
+					recipient: participant,
+					type: 'invite',
+					data: {
+						id: workspace._id,
+						title: object.title
+					}
+				}))
 				Socket.updateWorkspacesList(object.participants)
 			}
 			return prepare(workspace);

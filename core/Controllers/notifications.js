@@ -7,6 +7,8 @@ const Notification = require('../Models/Notification');
 
 module.exports = {
     list,
+    removeMany,
+    remove
 };
 
 
@@ -44,7 +46,33 @@ function list(request, response) {
 
     Notification.list(_user.id)
         .then(notifications => {
-            console.log('NOTIFATIONS', notifications)
+            return response.send(successHandler(notifications))
+        })
+        .catch(error =>
+            response.send(errorHandler(error)));
+}
+
+function removeMany(request, response) {
+    const {
+         _user,
+        params: {type},
+    } = request;
+
+    Notification.removeMany(_user.id, type)
+        .then(_ => {
+            return response.send(successHandler(type))
+        })
+        .catch(error =>
+            response.send(errorHandler(error)));
+}
+
+function remove(request, response) {
+    const {
+        params: notification
+    } = request
+
+    Notification.remove(notification)
+        .then(notifications => {
             return response.send(successHandler(notifications))
         })
         .catch(error =>

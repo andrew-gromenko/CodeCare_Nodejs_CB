@@ -7,4 +7,10 @@ router.route('/')
 
 .get(notifications.list)
 
+router.route('/:type')
+
+//Delete current user notifications by type
+
+.delete(notifications.removeMany)
+
 module.exports = router;

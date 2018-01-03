@@ -14,6 +14,9 @@ const {
 
 module.exports = {
     list,
+    create,
+    removeMany,
+    remove
 };
 
 /**
@@ -32,27 +35,34 @@ module.exports = {
 function list(userId) {
     return Notification
         .find({ recipient: ObjectId(userId) })
-        .then(noitifications => {
-            console.log(noitifications);
-            return noitifications.map(noitification => prettify(noitification))
+        .then(notifications => {
+            return notifications.map(notification => prettify(notification))
         });
 }
 
-// function create({ creator, title, description, tag, genre, file, privacy, url }) {
-//     const object = {
-//         creator,
-//         title,
-//         description,
-//         tag,
-//         genre,
-//         file,
-//         privacy,
-//         url
-//     };
+function create({ type, issuer, recipient, text, data }) {
+    const object = {
+        type,
+        issuer,
+        recipient,
+        text,
+        data
+    };
+    return new Notification(object)
+        .save()
+        .then(notification => {
+            return prettify(notification)
+        });
+}
 
-//     return new Project(object)
-//         .save()
-//         .then(project => {
-//             return prettify(project)
-//         });
-// }
+function removeMany(id, type) {
+    return Notification
+        .deleteMany({ recipient: ObjectId(id), type })
+        .then(() => type);
+}
+
+function remove(notification) {
+    return Notification
+        .deleteMany({ _id: ObjectId(notification) })
+        .then(notification => notification)
+}

@@ -126,7 +126,6 @@ function remove(request, response) {
 				.then(comments => {
 					Argument.removeComment(body.argue, comments)
 						.then(_ => {
-							console.log('~~~~~~~~~~~~~~~~~~~~~~!!!!!!!!!!!!!!!!!!!!123!!!!!!!!!!!!!!!!!!!!~~~~~~~~~~~~~~~~~~~~~')
 							Socket.updateArgueComments(body.workspace, _user.id)
 							return response.send(successHandler({ comment }))
 						})

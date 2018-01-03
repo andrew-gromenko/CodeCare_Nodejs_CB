@@ -21,7 +21,12 @@ const Notification = new Schema({
 
 	text: {
 		type: String,
-		required: true,
+		default: ''
+	},
+
+	data: {
+		type: Object,
+		default: {}
 	},
 
 	pristine: {
