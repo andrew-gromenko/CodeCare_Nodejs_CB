@@ -98,29 +98,7 @@ function create({creator, title, description, start, end, participants}) {
 	return new Workspace(object)
 		.save()
 		.then(workspace => {
-			if(object.participants.length > 0){
-				object.participants.forEach(participant => Notification.create({
-					issuer: object.creator,
-					recipient: participant,
-					type: 'invite',
-					data: {
-						id: workspace._id,
-						title: object.title
-					}
-				}))
-				Socket.updateWorkspacesList(object.participants)
-			}
 			return prepare(workspace);
-			// const handler = (resolve, reject) => {
-			// 	workspace
-			// 		.populate(populate('user', 'creator'), (error, document) => {
-			// 			if (error) reject(error);
-			//
-			// 			resolve(prepare(document));
-			// 		});
-			// };
-			//
-			// return new Promise(handler);
 		});
 }
 

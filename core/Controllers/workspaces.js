@@ -1,6 +1,8 @@
 const Workspace = require('../Models/Workspace');
 const Argument = require('../Models/Argument');
 const Invite = require('../Models/Invite');
+const Socket = require('../Services/Socket');
+const Notification = require('../Models/Notification')
 
 /**
  * =======
@@ -109,7 +111,22 @@ function create(request, response) {
 	// TODO: should create invite to each participant
 	Workspace.create({ creator: _user.id, title, description, start, end, participants })
 		.then(document => {
-			return response.send(successHandler({ workspace: { ...document, counts: { likes: 0, votes: 0, argues: 0 } } }))
+			const workspace = { workspace: { ...document, counts: { likes: 0, votes: 0, argues: 0 } } }
+			Socket.updateWorkspacesList(participants, workspace);
+			if (document.participants.length > 0) {
+				document.participants.forEach(participant => Notification.create({
+					issuer: document.creator,
+					recipient: participant,
+					type: 'invite',
+					data: {
+						id: document.id,
+						title: document.title
+					}
+				}).then(notification => {
+					Socket.notify(notification)
+				}))
+			}
+			return response.send(successHandler(workspace))
 		})
 		.catch(error =>
 			response.send(errorHandler(error)));
@@ -120,7 +137,8 @@ function update(request, response) {
 		body: { title, description, start, end, participants, oldParticipants },
 		params: { workspace },
 	} = request;
-	Workspace.update(workspace, {...request.body, title, description, start, end, participants, oldParticipants })
+
+	Workspace.update(workspace, { ...request.body, title, description, start, end, participants, oldParticipants })
 		.then(document => {
 			return Argument.count([document.id])
 				.then(counts => {
