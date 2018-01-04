@@ -64,5 +64,5 @@ function removeMany(id, type) {
 function remove(notification) {
     return Notification
         .deleteMany({ _id: ObjectId(notification) })
-        .then(notification => notification)
+        .then(_ => notification)
 }

@@ -13,4 +13,10 @@ router.route('/:type')
 
 .delete(notifications.removeMany)
 
+router.route('/:notification')
+
+//Delete notification by id
+
+.put(notifications.remove)
+
 module.exports = router;

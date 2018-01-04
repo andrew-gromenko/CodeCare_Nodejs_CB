@@ -68,9 +68,9 @@ function removeMany(request, response) {
 
 function remove(request, response) {
     const {
-        params: notification
+        params: {notification}
     } = request
-
+    
     Notification.remove(notification)
         .then(notifications => {
             return response.send(successHandler(notifications))
