@@ -15,8 +15,8 @@ const {
 module.exports = {
     list,
     create,
-    removeMany,
-    remove
+    readMany,
+    read
 };
 
 /**
@@ -55,14 +55,20 @@ function create({ type, issuer, recipient, text, data }) {
         });
 }
 
-function removeMany(id, type) {
+function readMany(id, type) {
     return Notification
-        .deleteMany({ recipient: ObjectId(id), type })
-        .then(() => type);
+        .update({ recipient: ObjectId(id), type }, { pristine: false }, { multi: true })
+        .then(notifications => {
+            console.log(notifications);
+            return notifications
+        });
 }
 
-function remove(notification) {
+function read(notification) {
     return Notification
-        .deleteMany({ _id: ObjectId(notification) })
-        .then(_ => notification)
+        .findOneAndUpdate({ _id: ObjectId(notification) }, { pristine: false })
+        .then(notification => {
+            console.log(notification)
+            return notification
+        })
 }

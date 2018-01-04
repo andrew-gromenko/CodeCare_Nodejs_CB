@@ -9,14 +9,14 @@ router.route('/')
 
 router.route('/:type')
 
-//Delete current user notifications by type
+//Read user notifications by type
 
-.delete(notifications.removeMany)
+.patch(notifications.readMany)
 
 router.route('/:notification')
 
-//Delete notification by id
+//Read notification by id
 
-.put(notifications.remove)
+.put(notifications.read)
 
 module.exports = router;

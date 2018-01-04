@@ -7,8 +7,8 @@ const Notification = require('../Models/Notification');
 
 module.exports = {
     list,
-    removeMany,
-    remove
+    readMany,
+    read
 };
 
 
@@ -52,13 +52,13 @@ function list(request, response) {
             response.send(errorHandler(error)));
 }
 
-function removeMany(request, response) {
+function readMany(request, response) {
     const {
          _user,
         params: {type},
     } = request;
 
-    Notification.removeMany(_user.id, type)
+    Notification.readMany(_user.id, type)
         .then(_ => {
             return response.send(successHandler(type))
         })
@@ -66,12 +66,12 @@ function removeMany(request, response) {
             response.send(errorHandler(error)));
 }
 
-function remove(request, response) {
+function read(request, response) {
     const {
         params: {notification}
     } = request
     
-    Notification.remove(notification)
+    Notification.read(notification)
         .then(notifications => {
             return response.send(successHandler(notifications))
         })
