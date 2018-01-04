@@ -72,20 +72,20 @@ function list(userId, query = {}) {
 	const criteria = {
 		...query,
 		'$or': [
-			{creator: user},
-			{participants: {'$all': [user]}},
+			{ creator: user },
+			{ participants: { '$all': [user] } },
 		],
 	};
 
 	return Workspace
 		.find(criteria)
-		.sort({modified_at: -1})
+		.sort({ modified_at: -1 })
 		// .populate(populate('user', 'creator'))
 		// .populate(populate('user', 'participants'))
 		.then(workspaces => workspaces.map(workspace => prepare(workspace)));
 }
 
-function create({creator, title, description, start, end, participants}) {
+function create({ creator, title, description, start, end, participants }) {
 	const object = {
 		creator,
 		title,
@@ -94,7 +94,7 @@ function create({creator, title, description, start, end, participants}) {
 		ends_at: end,
 		participants
 	};
-	
+
 	return new Workspace(object)
 		.save()
 		.then(workspace => {
@@ -103,27 +103,24 @@ function create({creator, title, description, start, end, participants}) {
 }
 
 function update(id, options) {
-	const instructions = {'new': true, runValidators: true};
+	const instructions = { 'new': true, runValidators: true };
 	const query = {
 		...options,
 		starts_at: options.start,
 		ends_at: options.end,
-		'$currentDate': {modified_at: true},
+		'$currentDate': { modified_at: true },
 	};
-	
 	return Workspace
-		.findOneAndUpdate({_id: ObjectId(id)}, query, instructions)
+		.findOneAndUpdate({ _id: ObjectId(id) }, query, instructions)
 		.then(model => {
-			Socket.updateWorkspacesList(options.oldParticipants)
 			exist(model);
-			
 			return prepare(model);
 		});
 }
 
 function remove(id) {
 	return Workspace
-		.findOneAndRemove({_id: ObjectId(id)})
+		.findOneAndRemove({ _id: ObjectId(id) })
 		// .populate(populate('user', 'creator'))
 		// .populate(populate('user', 'participants'))
 		.then(model => {
@@ -134,30 +131,32 @@ function remove(id) {
 }
 
 function edit(id, fields) {
-	const options = {'$set': fields};
+	const options = { '$set': fields };
 
 	return update(id, options);
 }
 
 function tiny(userId) {
 	const user = ObjectId(userId);
-	const criteria = {'$or': [
-		{creator: user},
-		{participants: {'$all': [user]}},
-	]};
+	const criteria = {
+		'$or': [
+			{ creator: user },
+			{ participants: { '$all': [user] } },
+		]
+	};
 
 	return Workspace
 		.find(criteria)
 		.select('id')
-		.then(workspaces => workspaces.map(({_id}) => _id.toString()));
+		.then(workspaces => workspaces.map(({ _id }) => _id.toString()));
 }
 
 function archive(id, archived) {
-	return edit(id, {archived});
+	return edit(id, { archived });
 }
 
 function participant(id, participant, action) {
-	return update(id, byAction(action, {participants: participant}));
+	return update(id, byAction(action, { participants: participant }));
 }
 
 // TODO: Do i need this?

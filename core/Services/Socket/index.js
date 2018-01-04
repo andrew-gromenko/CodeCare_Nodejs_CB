@@ -111,7 +111,7 @@ class SocketService {
 	notify(notification) {
 		const { recipient } = notification;
 		const client = this.clients.findByUser(recipient.toString());
-		
+
 		if (client) {
 			client.sockets
 				.forEach(socket => socket.emit('notification', notification));
@@ -155,8 +155,13 @@ class SocketService {
 	updateWorkspacesList(participants, workspace) {
 		participants.forEach((participant) => {
 			const client = this.clients.findByUser(participant.toString());
-			if (client) client.sockets.forEach(socket => socket.emit('workpaces_list_update', {...workspace }))
+			if (client) client.sockets.forEach(socket => socket.emit('workpaces_list_update', { ...workspace }))
 		})
+	}
+
+	droppedFromWorkspace(participant, id) {
+		const client = this.clients.findByUser(participant.toString());
+		if (client) client.sockets.forEach(socket => socket.emit('dropped_from_workspace', id))
 	}
 
 	updateArguesList(workspace, issuer) {

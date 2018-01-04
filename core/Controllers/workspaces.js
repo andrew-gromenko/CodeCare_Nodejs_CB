@@ -1,8 +1,11 @@
+const _ = require('lodash')
+
 const Workspace = require('../Models/Workspace');
 const Argument = require('../Models/Argument');
 const Invite = require('../Models/Invite');
 const Socket = require('../Services/Socket');
 const Notification = require('../Models/Notification')
+
 
 /**
  * =======
@@ -136,6 +139,7 @@ function update(request, response) {
 	const {
 		body: { title, description, start, end, participants, oldParticipants },
 		params: { workspace },
+		_user
 	} = request;
 
 	Workspace.update(workspace, { ...request.body, title, description, start, end, participants, oldParticipants })
@@ -150,8 +154,30 @@ function update(request, response) {
 					return { ...document, counts: { likes: 0, votes: 0, argues: 0 } }
 				})
 		})
-		.then(document =>
-			response.send(successHandler({ workspace: document })))
+		.then(document => {
+			const isCreator = document.creator == _user.id;
+			const stringParticipants = document.participants.map(participant => participant.toString());
+			const newParticipants = _.difference(stringParticipants, oldParticipants);
+			const droppedParticipants = _.difference(oldParticipants, stringParticipants);
+			Socket.updateWorkspacesList(isCreator ? document.participants : [...document.participants, document.creator], { workspace: document })
+			droppedParticipants.forEach(participant => Socket.droppedFromWorkspace(participant, document.id));
+
+			if (document.participants.length > 0) {
+				newParticipants.forEach(participant => Notification.create({
+					issuer: document.creator,
+					recipient: participant,
+					type: 'invite',
+					data: {
+						id: document.id,
+						title: document.title
+					}
+				}).then(notification => {
+					Socket.notify(notification)
+				}))
+			}
+
+			return response.send(successHandler({ workspace: document }))
+		})
 		.catch(error =>
 			response.send(errorHandler(error)));
 }
