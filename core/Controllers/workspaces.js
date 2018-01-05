@@ -188,8 +188,10 @@ function remove(request, response) {
 	} = request;
 
 	Workspace.remove(workspace)
-		.then(document =>
-			response.send(successHandler({ workspace: document })))
+		.then(document => {
+			document.participants.forEach(participant => Socket.droppedFromWorkspace(participant, document.id));
+			return response.send(successHandler({ workspace: document }))
+		})
 		.catch(error =>
 			response.send(errorHandler(error)));
 }

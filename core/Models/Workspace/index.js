@@ -125,7 +125,7 @@ function remove(id) {
 		// .populate(populate('user', 'participants'))
 		.then(model => {
 			exist(model);
-			Socket.updateWorkspacesList(model.participants)
+			// Socket.updateWorkspacesList(model.participants)
 			return prepare(model);
 		});
 }

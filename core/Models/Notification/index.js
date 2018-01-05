@@ -58,17 +58,11 @@ function create({ type, issuer, recipient, text, data }) {
 function readMany(id, type) {
     return Notification
         .update({ recipient: ObjectId(id), type }, { pristine: false }, { multi: true })
-        .then(notifications => {
-            console.log(notifications);
-            return notifications
-        });
+        .then(_ => type);
 }
 
 function read(notification) {
     return Notification
         .findOneAndUpdate({ _id: ObjectId(notification) }, { pristine: false })
-        .then(notification => {
-            console.log(notification)
-            return notification
-        })
+        .then(_ => notification)
 }
