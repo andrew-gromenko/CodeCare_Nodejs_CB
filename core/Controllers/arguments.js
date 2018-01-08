@@ -1,4 +1,6 @@
 const Argument = require('../Models/Argument');
+const Workspace = require('../Models/Workspace')
+const Notification = require('../Models/Notification')
 const Socket = require('../Services/Socket/index');
 
 /**
@@ -81,10 +83,29 @@ function create(request, response) {
 		body: { body, media },
 		params: { workspace },
 	} = request;
-	Argument.create({ issuer: _user.id, workspace, body, media })
-		.then(argue => {
-			Socket.updateArguesList(workspace, _user.id)
-			response.send(successHandler({ argue }))
+	Workspace.one(workspace)
+		.then(workspace => {
+			return Argument.create({ issuer: _user.id, workspace: workspace.id, body, media })
+				.then(argue => {
+					if (_user.id != workspace.creator._id) {
+						return Notification.create({
+							issuer: _user.id,
+							recipient: workspace.creator._id,
+							type: 'argues',
+							data: {
+								id: workspace.id,
+								title: argue.body
+							}
+						}).then(notification => {
+							Socket.notify(notification)
+							Socket.updateArguesList(workspace.id, _user.id)
+							response.send(successHandler({ argue }))
+						})
+					} else {
+						Socket.updateArguesList(workspace.id, _user.id)
+						return response.send(successHandler({ argue }))
+					}
+				})
 		}).catch(error =>
 			response.send(errorHandler(error)));
 }
