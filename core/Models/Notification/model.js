@@ -6,7 +6,7 @@ const Notification = new Schema({
 		type: String,
 		required: true,
 		lowercase: true,
-		enum: ['chat', 'workspace', 'common', 'invite'],
+		enum: ['chat', 'workspace', 'common', 'invite', 'drop', 'leave', 'comment', 'argues'],
 	},
 
 	issuer: {
