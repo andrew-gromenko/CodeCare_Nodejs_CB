@@ -160,7 +160,21 @@ function update(request, response) {
 			const newParticipants = _.difference(stringParticipants, oldParticipants);
 			const droppedParticipants = _.difference(oldParticipants, stringParticipants);
 			Socket.updateWorkspacesList(isCreator ? document.participants : [...document.participants, document.creator], { workspace: document })
-			droppedParticipants.forEach(participant => Socket.droppedFromWorkspace(participant, document.id));
+
+			droppedParticipants.forEach(participant => {
+				Socket.droppedFromWorkspace(participant, document.id)
+				Notification.create({
+					issuer: document.creator,
+					recipient: participant,
+					type: 'drop',
+					data: {
+						id: document.id,
+						title: document.title
+					}
+				}).then(notification => {
+					Socket.notify(notification)
+				})
+			});
 
 			if (document.participants.length > 0) {
 				newParticipants.forEach(participant => Notification.create({
@@ -174,6 +188,20 @@ function update(request, response) {
 				}).then(notification => {
 					Socket.notify(notification)
 				}))
+			}
+
+			if (!isCreator) {
+				Notification.create({
+					issuer: _user.id,
+					recipient: document.creator,
+					type: 'leave',
+					data: {
+						id: document.id,
+						title: document.title
+					}
+				}).then(notification => {
+					Socket.notify(notification)
+				})
 			}
 
 			return response.send(successHandler({ workspace: document }))
