@@ -82,7 +82,7 @@ function addComment(argueId, comment) {
 				argument.comments.push(comment.id);
 				argument.commentsCount += 1;
 				argument.save()
-					.then(_ => resolve(comment));
+					.then(_ => resolve(argument));
 			});
 	});
 }

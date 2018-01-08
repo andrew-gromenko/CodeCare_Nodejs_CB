@@ -1,6 +1,8 @@
 const Argument = require('../Models/Argument');
 const Comment = require('../Models/Comment');
-const Socket = require('../Services/Socket')
+const Notification = require('../Models/Notification')
+const Workspace = require('../Models/Workspace')
+const Socket = require('../Services/Socket');
 
 const {
 	exist,
@@ -86,14 +88,68 @@ function create(request, response) {
 			_user,
 		body: { body, replied_to, belongs_to, workspace },
 	} = request;
-	Comment.create({ issuer: _user.id, belongs_to, replied_to, body, workspace })
-		.then(comment => {
-			Argument.addComment(belongs_to, comment)
-				.then(_ => {
-					Socket.updateArgueComments(workspace, _user.id)
-					return response.send(successHandler({ comment })
-					)
-				});
+	Workspace.one(workspace)
+		.then(workspace => {
+			return Comment.create({ issuer: _user.id, belongs_to, replied_to, body, workspace: workspace.id })
+				.then(comment => {
+					console.log('comment', comment)
+					return Argument.addComment(belongs_to, comment)
+						.then(argument => {
+							if (replied_to) {
+								Notification.create({
+									issuer: comment.issuer,
+									recipient: comment.replied_to.issuer,
+									type: 'reply',
+									data: {
+										id: workspace.id,
+										title: argument.body
+									}
+								}).then(notification => {
+									console.log('NOTIFICATION', notification)
+									Socket.notify(notification)
+								})
+							}
+							Socket.updateArgueComments(workspace, _user.id)
+							return response.send(successHandler({ comment }))
+
+							// if ((workspace.creator._id != replied_to) && (_user.id != workspace.creator._id)) {
+							// 	const body = belongs_to === workspace.creator._id ?
+							// 		{
+							// 			issuer: _user.id,
+							// 			recipient: workspace.creator._id,
+							// 			type: 'argues-comment',
+							// 			data: {
+							// 				id: workspace.id,
+							// 				title: argue.body
+							// 			}
+							// 		} :
+							// 		{
+							// 			issuer: _user.id,
+							// 			recipient: workspace.creator._id,
+							// 			type: 'comment',
+							// 			data: {
+							// 				id: workspace.id,
+							// 				title: argue.body
+							// 			}
+							// 		}
+							// 	Notification.create({
+							// 		issuer: _user.id,
+							// 		recipient: workspace.creator._id,
+							// 		type: 'comment',
+							// 		data: {
+							// 			id: workspace.id,
+							// 			title: argue.body
+							// 		}
+							// 	}).then(notification => {
+							// 		Socket.notify(notification)
+							// 		Socket.updateArgueComments(workspace, _user.id)
+							// 		return response.send(successHandler({ comment }))
+							// 	})
+							// } else {
+
+							// }
+						})
+				})
 		})
 		.catch(error =>
 			response.send(errorHandler(error)));
