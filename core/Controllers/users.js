@@ -1,5 +1,6 @@
 const User = require('../Services/User');
-
+const Notification = require('../Models/Notification');
+const Socket = require('../Services/Socket')
 /**
  * =======
  * Exports
@@ -104,8 +105,17 @@ function relationship(request, response) {
 
 		case 'follow': {
 			User.follow(_user.id, params.user)
-				.then(user =>
-					response.send(successHandler({ user })))
+				.then(user => {
+					Notification.create({
+						issuer: _user.id,
+						recipient: params.user,
+						type: 'follow',
+					}).then(notification => {
+						Socket.notify(notification)
+						return response.send(successHandler({ user }))
+					})
+					
+				})
 				.catch(error =>
 					response.send(errorHandler(error)));
 
@@ -114,8 +124,16 @@ function relationship(request, response) {
 
 		case 'unfollow': {
 			User.unfollow(_user.id, params.user)
-				.then(user =>
-					response.send(successHandler({ user })))
+				.then(user => {
+					Notification.create({
+						issuer: _user.id,
+						recipient: params.user,
+						type: 'unfollow',
+					}).then(notification => {
+						Socket.notify(notification)
+						return response.send(successHandler({ user }))
+					})
+				})
 				.catch(error =>
 					response.send(errorHandler(error)));
 
