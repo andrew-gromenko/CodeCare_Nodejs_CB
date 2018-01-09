@@ -92,7 +92,6 @@ function create(request, response) {
 		.then(workspace => {
 			return Comment.create({ issuer: _user.id, belongs_to, replied_to, body, workspace: workspace.id })
 				.then(comment => {
-					console.log('comment', comment)
 					return Argument.addComment(belongs_to, comment)
 						.then(argument => {
 							if (replied_to) {
@@ -105,49 +104,56 @@ function create(request, response) {
 										title: argument.body
 									}
 								}).then(notification => {
-									console.log('NOTIFICATION', notification)
 									Socket.notify(notification)
 								})
 							}
-							Socket.updateArgueComments(workspace, _user.id)
+
+							if (workspace.creator._id == argument.issuer) {
+								if (_user.id != workspace.creator._id && (comment.replied_to == null || workspace.creator._id != comment.replied_to.issuer)) {
+									Notification.create({
+										issuer: _user.id,
+										recipient: workspace.creator._id,
+										type: 'argues-comment',
+										data: {
+											id: workspace.id,
+											title: argument.body
+										}
+									}).then(notification => {
+										Socket.notify(notification)
+									})
+								}
+							} else {
+								if (_user.id != workspace.creator._id && (comment.replied_to == null || workspace.creator._id != comment.replied_to.issuer)) {
+									Notification.create({
+										issuer: _user.id,
+										recipient: workspace.creator._id,
+										type: 'ws-comment',
+										data: {
+											id: workspace.id,
+											title: argument.body
+										}
+									}).then(notification => {
+										Socket.notify(notification)
+									})
+								}
+
+								if (_user.id != argument.issuer && (comment.replied_to == null || argument.issuer != comment.replied_to.issuer)) {
+									Notification.create({
+										issuer: _user.id,
+										recipient: argument.issuer,
+										type: 'argues-comment',
+										data: {
+											id: workspace.id,
+											title: argument.body
+										}
+									}).then(notification => {
+										Socket.notify(notification)
+									})
+								}
+							}
+
+							Socket.updateArgueComments(workspace.id, _user.id)
 							return response.send(successHandler({ comment }))
-
-							// if ((workspace.creator._id != replied_to) && (_user.id != workspace.creator._id)) {
-							// 	const body = belongs_to === workspace.creator._id ?
-							// 		{
-							// 			issuer: _user.id,
-							// 			recipient: workspace.creator._id,
-							// 			type: 'argues-comment',
-							// 			data: {
-							// 				id: workspace.id,
-							// 				title: argue.body
-							// 			}
-							// 		} :
-							// 		{
-							// 			issuer: _user.id,
-							// 			recipient: workspace.creator._id,
-							// 			type: 'comment',
-							// 			data: {
-							// 				id: workspace.id,
-							// 				title: argue.body
-							// 			}
-							// 		}
-							// 	Notification.create({
-							// 		issuer: _user.id,
-							// 		recipient: workspace.creator._id,
-							// 		type: 'comment',
-							// 		data: {
-							// 			id: workspace.id,
-							// 			title: argue.body
-							// 		}
-							// 	}).then(notification => {
-							// 		Socket.notify(notification)
-							// 		Socket.updateArgueComments(workspace, _user.id)
-							// 		return response.send(successHandler({ comment }))
-							// 	})
-							// } else {
-
-							// }
 						})
 				})
 		})
