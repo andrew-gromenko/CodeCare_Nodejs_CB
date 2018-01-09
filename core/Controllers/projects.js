@@ -1,4 +1,6 @@
 const Project = require('../Models/Project');
+const Notification = require('../Models/Notification');
+const Socket = require('../Services/Socket');
 /**
  * =======
  * Exports
@@ -12,7 +14,7 @@ module.exports = {
 	update,
 	listById,
 	react,
-	listByIds, 
+	listByIds,
 	view
 };
 
@@ -120,7 +122,19 @@ function react(request, response) {
 
 	Project.react(project, { issuer: _user.id, type, value })
 		.then(project => {
-			return response.send(successHandler({ project }))
+			if (value == 1 && _user.id != project.creator) {
+				return Notification.create({
+					issuer: _user.id,
+					recipient: project.creator,
+					type: 'like',
+				}).then(notification => {
+					Socket.notify(notification)
+					return response.send(successHandler({ project }))
+				})
+			} else {
+				return response.send(successHandler({ project }))
+			}
+
 		})
 		.catch(error =>
 			response.send(errorHandler(error)));
