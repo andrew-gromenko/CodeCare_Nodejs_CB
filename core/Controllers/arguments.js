@@ -94,7 +94,8 @@ function create(request, response) {
 							type: 'argues',
 							data: {
 								id: workspace.id,
-								title: argue.body
+								title: argue.body,
+								workspace: workspace.title
 							}
 						}).then(notification => {
 							Socket.notify(notification)
