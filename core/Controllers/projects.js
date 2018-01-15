@@ -127,6 +127,9 @@ function react(request, response) {
 					issuer: _user.id,
 					recipient: project.creator,
 					type: 'like',
+					data: {
+						project: project.title
+					}
 				}).then(notification => {
 					Socket.notify(notification)
 					return response.send(successHandler({ project }))
