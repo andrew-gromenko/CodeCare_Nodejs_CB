@@ -101,7 +101,8 @@ function create(request, response) {
 									type: 'reply',
 									data: {
 										id: workspace.id,
-										title: argument.body
+										title: argument.body,
+										workspace: workspace.title
 									}
 								}).then(notification => {
 									Socket.notify(notification)
@@ -116,7 +117,8 @@ function create(request, response) {
 										type: 'argues-comment',
 										data: {
 											id: workspace.id,
-											title: argument.body
+											title: argument.body,
+											workspace: workspace.title
 										}
 									}).then(notification => {
 										Socket.notify(notification)
@@ -130,7 +132,8 @@ function create(request, response) {
 										type: 'ws-comment',
 										data: {
 											id: workspace.id,
-											title: argument.body
+											title: argument.body,
+											workspace: workspace.title
 										}
 									}).then(notification => {
 										Socket.notify(notification)
@@ -144,7 +147,8 @@ function create(request, response) {
 										type: 'argues-comment',
 										data: {
 											id: workspace.id,
-											title: argument.body
+											title: argument.body,
+											workspace: workspace.title
 										}
 									}).then(notification => {
 										Socket.notify(notification)
