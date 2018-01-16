@@ -88,14 +88,8 @@ function remove(list) {
 }
 
 function pristine(list) {
-	const instructions = {'new': true, runValidators: true};
-	const query = {
-		'$set': {pristine: false},
-		'$currentDate': {modified_at: true},
-	};
-
 	return Message
-		.update({_id: {'$in': list.map(id => ObjectId(id))}}, query, instructions)
+		.update({_id: {'$in': list.map(id => ObjectId(id))}}, { pristine: false }, { multi: true })
 		.then(() => list);
 }
 
