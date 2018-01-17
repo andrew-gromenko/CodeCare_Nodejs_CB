@@ -57,6 +57,10 @@ const Project = new Schema({
     plays: {
         type: Number,
         default: 0
+    },
+    cover: {
+        type: Object,
+        default: null
     }
 });
 

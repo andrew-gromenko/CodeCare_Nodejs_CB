@@ -68,7 +68,7 @@ function list(userId) {
         .then(projects => projects.map(project => prettify(project)));
 }
 
-function create({ creator, title, description, tag, genre, file, privacy, url }) {
+function create({ creator, title, description, tag, genre, file, privacy, url, cover }) {
     const object = {
         creator,
         title,
@@ -77,7 +77,8 @@ function create({ creator, title, description, tag, genre, file, privacy, url })
         genre,
         file,
         privacy,
-        url
+        url,
+        cover
     };
 
     return new Project(object)
