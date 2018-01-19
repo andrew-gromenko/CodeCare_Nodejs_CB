@@ -65,7 +65,7 @@ function remove(mediaId) {
 	return Media
 		.findByIdAndRemove(ObjectId(mediaId))
 		.then((res) => {
-			return res.entity.key
+			return res.entity.key ? res.entity.key : res.entity.standard.key
 		});
 }
 
