@@ -23,18 +23,22 @@ const User = new Schema({
 
 	name: {
 		type: String,
+		default: ''
 	},
 
 	city: {
 		type: String,
+		default: ''
 	},
 
 	country: {
 		type: String,
+		default: ''
 	},
 
 	phone: {
 		type: String,
+		default: ''
 	},
 
 	cover: {
@@ -47,14 +51,17 @@ const User = new Schema({
 
 	categories: [{
 		type: String,
+		default: []
 	}],
 
 	skills: [{
 		type: String,
+		default: []
 	}],
 
 	summary: {
 		type: String,
+		default: ''
 	},
 
 	followers: [{
