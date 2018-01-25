@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
-const bcrypt   = require('bcrypt');
-const isEmail  = require('validator/lib/isEmail');
-const Schema   = mongoose.Schema;
+const bcrypt = require('bcrypt');
+const isEmail = require('validator/lib/isEmail');
+const Schema = mongoose.Schema;
 
 const User = new Schema({
 	email: {
@@ -113,7 +113,21 @@ const User = new Schema({
 	views: {
 		type: Number,
 		default: 0
-	}
+	},
+	paymentToken: {
+		type: 'String'
+
+	},
+	paidFor: {
+		type: Boolean,
+		default: true,
+		required: true
+	},
+	verify: {
+		type: Boolean,
+		default: false
+	},
+
 });
 
 function encryptPassword(next, done) {

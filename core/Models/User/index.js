@@ -81,7 +81,7 @@ function list(query) {
 			users.map(user => prepare(user)));
 }
 
-function create({ email, username, password }) {
+function create({ email, username, password, paymentToken }) {
 	const object = {
 		email,
 		name: username,
@@ -129,6 +129,10 @@ function verify({ email, password }) {
 		.findOne({ email })
 		.then(user => {
 			exist(user);
+
+			// if (!user.verify) {
+			// 	throw new Error("User isn't verified")
+			// }
 
 			if (password) {
 				return user.comparePassword(password)

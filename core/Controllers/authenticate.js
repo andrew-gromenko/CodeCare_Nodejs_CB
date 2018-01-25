@@ -2,6 +2,7 @@ const User = require('../Models/User');
 const Token = require('../Services/Token');
 const jwt = require('jsonwebtoken');
 
+
 function authenticate(request, response) {
 	const {app, body} = request;
 	const {token, email, password} = body;
