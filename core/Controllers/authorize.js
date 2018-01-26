@@ -22,7 +22,7 @@ const transporter = nodemailer.createTransport({
 	secure: true,
 	auth: {
 		user: 'bonystdia02',
-		pass: ''
+		pass: 'lfkflyjcerf&j,kjvbimcz1994nnJi53xt'
 	}
 });
 
@@ -80,7 +80,7 @@ function authorize(request, response) {
 								if (error) {
 									return response.send(errorHandler(error))
 								}
-								return response.send({ status: 200, data: 'MAIL WAS SENDED' })
+								return response.send({ status: 200, data: {mail: 'successfully'}})
 							})
 					})
 					.catch(error =>

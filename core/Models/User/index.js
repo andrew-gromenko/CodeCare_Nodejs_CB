@@ -73,6 +73,7 @@ function list(query) {
 	const criteria = {
 		...query,
 		__removed: false,
+		verified: true
 	};
 
 	return User
@@ -130,9 +131,9 @@ function verify({ email, password }) {
 		.then(user => {
 			exist(user);
 
-			// if (!user.verify) {
-			// 	throw new Error("User isn't verified")
-			// }
+			if (!user.verify) {
+				throw new Error("User isn't verified")
+			}
 
 			if (password) {
 				return user.comparePassword(password)
