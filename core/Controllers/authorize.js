@@ -96,7 +96,7 @@ function verify(req, res) {
 	var token = req.query.token
 
 	jwt.verify(token, secret, function (err, decoded) {
-		if (err) return res.json({ success: false, message: 'user not found' });
+		if (err) return res.redirect('http://localhost:3000/sign-up-failed');
 		User.update(decoded.id, { verify: true })
 			.then(user => {
 				var mailOptions = {
@@ -114,9 +114,9 @@ function verify(req, res) {
 				};
 				transporter.sendMail(mailOptions, function (error, info) {
 					if (error) {
-						return res.send(error);
+						return res.redirect('http://localhost:3000/sign-up-failed');
 					} else {
-						res.json({ success: true, message: 'User successfully verified' });
+						res.redirect('http://localhost:3000/sign-up-suceeded');
 					}
 				});
 			})
