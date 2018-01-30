@@ -15,6 +15,12 @@ function errorHandler(error) {
 	};
 }
 
+function successHandler(data) {
+	return {
+		status: 200,
+		data,
+	};
+}
 
 const transporter = nodemailer.createTransport({
 	service: mail.service,
@@ -25,10 +31,10 @@ const transporter = nodemailer.createTransport({
 });
 
 function authorize(request, response) {
-	
+
 	const { app, body } = request;
 	const secret = app.get('SECRET_TOKEN');
-	if(!body.token) return response.send(errorHandler({message: 'payment information not provided'}))
+	if (!body.token) return response.send(errorHandler({ message: 'payment information not provided' }))
 	stripe.customers.create({
 		email: body.email,
 		description: body.email,
@@ -80,7 +86,7 @@ function authorize(request, response) {
 								if (error) {
 									return response.send(errorHandler(error))
 								}
-								return response.send({ status: 200, data: {mail: 'successfully'}})
+								return response.send({ status: 200, data: { mail: 'successfully' } })
 							})
 					})
 					.catch(error =>
@@ -124,7 +130,68 @@ function verify(req, res) {
 	});
 }
 
+function verifyEmail(request, response) {
+	const { body, app } = request
+	const secret = app.get('SECRET_TOKEN')
+
+	User.oneByEmail(body.email)
+		.then(user => {
+			const token = jwt.sign({
+				email: user.email,
+				id: user.id
+			}, secret, { expiresIn: '1h' });
+
+			return response.send(successHandler(token))
+			const mailOptions = {
+				from: 'hello@clockbeats.com',
+				to: decoded.email,
+				subject: 'Clockbeats',
+				html: '<a href="http://clb-staging.herokuapp.com/restore?token=' + token + '">Restore password link</a>'
+			};
+
+			transporter.sendMail(mailOptions,
+				(error, info) => {
+					if (error) {
+						return response.send(errorHandler(error))
+					}
+					return response.send({ status: 200, data: { mail: 'successfully' } })
+				})
+		})
+		.catch(error => response.send(errorHandler(error)));
+}
+
+function restorePassword(request, response) {
+	const { body, params } = request;
+	const secret = app.get('SECRET_TOKEN');
+	const token = params.token;
+
+	jwt.verify(token, secret, function (err, decoded) {
+		if (err) return response.send(successHandler(err));
+		User.update(decoded.id, { password: body.password })
+			.then(user => {
+				const mailOptions = {
+					from: 'hello@clockbeats.com',
+					to: decoded.email,
+					subject: 'Clockbeats',
+					html: 'New password :' + body.password + '.'
+				};
+
+				transporter.sendMail(mailOptions,
+					(error, info) => {
+						if (error) {
+							return response.send(errorHandler(error))
+						}
+						return response.send({ status: 200, data: 'Succeede' })
+					})
+			})
+			.catch(error => errorHandler(error))
+	});
+}
+
 module.exports = {
 	authorize,
-	verify
+	verify,
+	verifyEmail,
+	restorePassword
 }
+
