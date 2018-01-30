@@ -17,12 +17,10 @@ function errorHandler(error) {
 
 
 const transporter = nodemailer.createTransport({
-	host: 'smtp.gmail.com',
-	port: 465,
-	secure: true,
+	service: mail.service,
 	auth: {
-		user: 'bonystdia02',
-		pass: 'lfkflyjcerf&j,kjvbimcz1994nnJi53xt'
+		user: mail.user,
+		pass: mail.password
 	}
 });
 
