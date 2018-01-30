@@ -1,7 +1,7 @@
 const User = require('../Models/User');
 const Token = require('../Services/Token');
-const mail = require('../../config/mail')
-const { paymentToken, paymentPlan, testKey } = require('../../config/payment');
+const { mail } = require('../../config/mail')
+const { paymentToken, paymentPlan } = require('../../config/payment');
 const stripe = require('stripe')(paymentToken);
 const nodemailer = require('nodemailer');
 const jwt = require('jsonwebtoken');
@@ -25,8 +25,10 @@ const transporter = nodemailer.createTransport({
 });
 
 function authorize(request, response) {
+	
 	const { app, body } = request;
 	const secret = app.get('SECRET_TOKEN');
+	if(!body.token) return response.send(errorHandler({message: 'payment information not provided'}))
 	stripe.customers.create({
 		email: body.email,
 		description: body.email,
