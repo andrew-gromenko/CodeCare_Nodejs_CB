@@ -5,6 +5,7 @@ const { paymentToken, paymentPlan } = require('../../config/payment');
 const stripe = require('stripe')(paymentToken);
 const nodemailer = require('nodemailer');
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
 
 function errorHandler(error) {
 	return {
@@ -165,23 +166,25 @@ function restorePassword(request, response) {
 	const token = params.token;
 
 	jwt.verify(token, secret, function (err, decoded) {
-		if (err) return response.send(successHandler(err));
-		
-		User.update(decoded.id, { password: body.password })
-			.then(user => {
-				const mailOptions = {
-					from: 'hello@clockbeats.com',
-					to: decoded.email,
-					subject: 'Clockbeats',
-					html: 'New password :' + body.password + '.'
-				};
+		if (err) return response.send(errorHandler(err));
+		bcrypt.hash(body.password, 10)
+			.then(password => {
+				return User.update(decoded.id, { password })
+					.then(user => {
+						const mailOptions = {
+							from: 'hello@clockbeats.com',
+							to: decoded.email,
+							subject: 'Clockbeats',
+							html: 'New password :' + body.password + '.'
+						};
 
-				transporter.sendMail(mailOptions,
-					(error, info) => {
-						if (error) {
-							return response.send(errorHandler(error))
-						}
-						return response.send({ status: 200, data: 'Succeeded' })
+						transporter.sendMail(mailOptions,
+							(error, info) => {
+								if (error) {
+									return response.send(errorHandler(error))
+								}
+								return response.send({ status: 200, data: 'Succeeded' })
+							})
 					})
 			})
 			.catch(error => errorHandler(error))
