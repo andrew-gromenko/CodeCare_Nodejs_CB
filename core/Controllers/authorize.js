@@ -160,12 +160,13 @@ function verifyEmail(request, response) {
 }
 
 function restorePassword(request, response) {
-	const { body, params } = request;
+	const { body, params, app } = request;
 	const secret = app.get('SECRET_TOKEN');
 	const token = params.token;
 
 	jwt.verify(token, secret, function (err, decoded) {
 		if (err) return response.send(successHandler(err));
+		
 		User.update(decoded.id, { password: body.password })
 			.then(user => {
 				const mailOptions = {
@@ -191,6 +192,6 @@ module.exports = {
 	authorize,
 	verify,
 	verifyEmail,
-	restorePassword
+	restorePassword,
 }
 
