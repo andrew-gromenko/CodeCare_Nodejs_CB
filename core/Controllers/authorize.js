@@ -143,7 +143,7 @@ function verifyEmail(request, response) {
 
 			const mailOptions = {
 				from: 'hello@clockbeats.com',
-				to: decoded.email,
+				to: user.email,
 				subject: 'Clockbeats',
 				html: '<a href="http://clb-staging.herokuapp.com/restore?token=' + token + '">Restore password link</a>'
 			};
