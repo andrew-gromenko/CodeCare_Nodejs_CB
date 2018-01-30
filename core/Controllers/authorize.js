@@ -146,7 +146,7 @@ function verifyEmail(request, response) {
 				from: 'hello@clockbeats.com',
 				to: user.email,
 				subject: 'Clockbeats',
-				html: '<a href="http://clb-staging.herokuapp.com/restore?token=' + token + '">Restore password link</a>'
+				html: '<a href="https://clb-staging.herokuapp.com/restore?token=' + token + '">Restore password link</a>'
 			};
 
 			transporter.sendMail(mailOptions,
