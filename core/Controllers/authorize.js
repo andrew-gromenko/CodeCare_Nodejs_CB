@@ -106,7 +106,7 @@ function verify(req, res) {
 					html: '<h3 style="text-align: center" align="center">Dear “' + user.username + '”,</h3><br>' +
 						'<p>thank you for signing up and join our fam!! From now on you can start to share your projects and start your work.' +
 						'We are thrilled to welcome you to Clockbeats, the new generation music community.<br>' +
-						'LOG IN here : <a href="http://www.clockbeats.com/dashboard#/login?_k=drlzu5">http://www.clockbeats.com/dashboard#/login?_k=drlzu5</a><br>' +
+						'LOG IN here : <a href="https://clb-staging.herokuapp.com/sign-in">https://clb-staging.herokuapp.com/sign-in</a><br>' +
 						'Username : “' + user.username + '”<br>' +
 						'We hugely appreciate your support, and we will keep you updated about devolopments of Clockbeats, through our newsletter.<br>' +
 						'If you have any questions, please do not hesitate to contact us!<br>' +
