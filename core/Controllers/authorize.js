@@ -141,7 +141,6 @@ function verifyEmail(request, response) {
 				id: user.id
 			}, secret, { expiresIn: '1h' });
 
-			return response.send(successHandler(token))
 			const mailOptions = {
 				from: 'hello@clockbeats.com',
 				to: decoded.email,
@@ -154,7 +153,7 @@ function verifyEmail(request, response) {
 					if (error) {
 						return response.send(errorHandler(error))
 					}
-					return response.send({ status: 200, data: { mail: 'successfully' } })
+					return response.send({ status: 200, data: { mail: 'Succeeded' } })
 				})
 		})
 		.catch(error => response.send(errorHandler(error)));
@@ -181,7 +180,7 @@ function restorePassword(request, response) {
 						if (error) {
 							return response.send(errorHandler(error))
 						}
-						return response.send({ status: 200, data: 'Succeede' })
+						return response.send({ status: 200, data: 'Succeeded' })
 					})
 			})
 			.catch(error => errorHandler(error))
