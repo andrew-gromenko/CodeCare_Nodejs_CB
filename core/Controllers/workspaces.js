@@ -5,8 +5,16 @@ const Argument = require('../Models/Argument');
 const Invite = require('../Models/Invite');
 const Socket = require('../Services/Socket');
 const Notification = require('../Models/Notification')
-
-
+const User = require('../Models/User');
+const { mail } = require('../../config/mail')
+const nodemailer = require('nodemailer');
+const transporter = nodemailer.createTransport({
+	service: mail.service,
+	auth: {
+		user: mail.user,
+		pass: mail.password
+	}
+});
 /**
  * =======
  * Exports
@@ -126,6 +134,20 @@ function create(request, response) {
 						title: document.title
 					}
 				}).then(notification => {
+					document.participant.forEach((participant) => {
+						User.findById(participant)
+							.then(user => {
+								const mailOptions = {
+									from: 'hello@clockbeats.com',
+									to: user.email,
+									subject: 'Clockbeats',
+									html: 'You invited to new workspace'
+								};
+
+								transporter.sendMail(mailOptions,
+									(error, info) => { })
+							})
+					})
 					Socket.notify(notification)
 				}))
 			}
@@ -186,6 +208,20 @@ function update(request, response) {
 						title: document.title
 					}
 				}).then(notification => {
+					document.participant.forEach((participant) => {
+						User.findById(participant)
+							.then(user => {
+								const mailOptions = {
+									from: 'hello@clockbeats.com',
+									to: user.email,
+									subject: 'Clockbeats',
+									html: 'You invited to new workspace'
+								};
+
+								transporter.sendMail(mailOptions,
+									(error, info) => { })
+							})
+					})
 					Socket.notify(notification)
 				}))
 			}
