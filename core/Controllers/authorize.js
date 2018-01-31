@@ -104,7 +104,7 @@ function verify(req, res) {
 
 	jwt.verify(token, secret, function (err, decoded) {
 		if (err) return res.redirect('https://clb-staging.herokuapp.com/sign-up-failed');
-		User.update(decoded.id, { verify: true })
+		User.update(decoded.id, { verified: true })
 			.then(user => {
 				var mailOptions = {
 					from: 'hello@clockbeats.com',

@@ -20,6 +20,7 @@ const users = [...new Array(25).keys()]
 			email: `user_${number}@gmail.com`,
 			username: `user_${number}`,
 			password: 'password',
+
 		};
 		const profile = {
 			name: `Awesome User ${number}`,
@@ -32,6 +33,8 @@ const users = [...new Array(25).keys()]
 					He has a degree in double bass from the Conservatory of Brescia (Italy), and a professional certificate in
 					electronic music composition from Berklee College of Music (Boston, MA).
 					He is one of the Clockbeats Founder. He has an extensive network of professionals in the music industry worldwide.`,
+			verified: true,
+
 		};
 
 		return User.create(user)

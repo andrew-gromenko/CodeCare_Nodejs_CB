@@ -57,6 +57,7 @@ module.exports = {
  */
 
 function list(query) {
+	console.log('QUERY', query)
 	return User.list(query)
 		.then(users => ({
 			users: users.map(profileSelector),

@@ -131,7 +131,7 @@ function verify({ email, password }) {
 		.then(user => {
 			exist(user);
 
-			if (!user.verify) {
+			if (!user.verified) {
 				throw new Error("User isn't verified")
 			}
 

@@ -123,7 +123,7 @@ const User = new Schema({
 		default: true,
 		required: true
 	},
-	verify: {
+	verified: {
 		type: Boolean,
 		default: false
 	},
