@@ -134,8 +134,8 @@ function create(request, response) {
 						title: document.title
 					}
 				}).then(notification => {
-					document.participant.forEach((participant) => {
-						User.findById(participant)
+					document.participants.forEach((participant) => {
+						User.oneById(participant)
 							.then(user => {
 								const mailOptions = {
 									from: 'hello@clockbeats.com',
@@ -208,8 +208,8 @@ function update(request, response) {
 						title: document.title
 					}
 				}).then(notification => {
-					document.participant.forEach((participant) => {
-						User.findById(participant)
+					newParticipants.forEach((participant) => {
+						User.oneById(participant)
 							.then(user => {
 								const mailOptions = {
 									from: 'hello@clockbeats.com',
