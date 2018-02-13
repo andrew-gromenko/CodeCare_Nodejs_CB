@@ -7,13 +7,11 @@ module.exports = {
   byAction,
 };
 
-
 const id = ({ _id }) => _id.toString();
 
 function exist(model) {
   if (!model) throw new Error('Entity not found.');
 }
-
 
 function prettify(model, values = []) {
   const object = typeof model.toObject === 'function' ? model.toObject() : model;

@@ -57,6 +57,8 @@ function self(request, response) {
 function update(request, response) {
 	const { _user, body, app } = request;
 
+	console.log(_user, body.username);
+
 	const secret = app.get('SECRET_TOKEN');
 
 	if (body.username !== _user.username) {
