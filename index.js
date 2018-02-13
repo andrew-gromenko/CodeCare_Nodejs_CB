@@ -26,7 +26,7 @@ server.get('/', (request, response) => {
 			name: 'Clockbeats API',
 			version: '2.0.0',
 			developer: {
-				name: 'Serhii Yaitsky',
+				name: 'Serhii Yaitsky2222',
 				email: 'eggcllnt@gmail.com',
 			}
 		});
