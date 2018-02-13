@@ -1,4 +1,5 @@
 const User = require('../Services/User');
+const Token = require('../Services/Token');
 
 /**
  * =======
@@ -54,17 +55,30 @@ function self(request, response) {
 }
 
 function update(request, response) {
-	const { _user, body } = request;
+	const { _user, body, app } = request;
 
-	console.log('u', _user);
-	console.log('b', body);
+	const secret = app.get('SECRET_TOKEN');
 
-	User.update(_user.id, body)
-		.then(user => {
-			response.send(successHandler({ user }))
-		})
-		.catch(error =>
-			response.send(errorHandler(error)));
+	if (body.username !== _user.username) {
+		User.profile(body.username).then(profile => {
+      response.status(403).send({ status: 403 });
+    }).catch(err => {
+      User.update(_user.id, body)
+        .then(user => {
+        	const { id, email } = _user;
+          response.send({ ...successHandler({ user }), token: Token.assign({ id, email, username: body.username }, secret)})
+        })
+        .catch(error =>
+          response.send(errorHandler(error)));
+    });
+  } else {
+    User.update(_user.id, body)
+      .then(user => {
+        response.send(successHandler({ user }))
+      })
+      .catch(error =>
+        response.send(errorHandler(error)));
+	}
 }
 
 function remove(request, response) {

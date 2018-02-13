@@ -14,7 +14,7 @@ router.route('/:username')
 	.get(users.profile);
 
 router.route('/:id')
-	.patch(users.view)
+	.patch(users.view);
 	
 router.route('/:user/projects')
 	.get(users.projects);
