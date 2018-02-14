@@ -1,12 +1,12 @@
-const _ = require('lodash')
+const _ = require('lodash');
 
 const Workspace = require('../Models/Workspace');
 const Argument = require('../Models/Argument');
 const Invite = require('../Models/Invite');
 const Socket = require('../Services/Socket');
-const Notification = require('../Models/Notification')
+const Notification = require('../Models/Notification');
 const User = require('../Models/User');
-const { mail } = require('../../config/mail')
+const { mail } = require('../../config/mail');
 const nodemailer = require('nodemailer');
 const transporter = nodemailer.createTransport({
 	service: mail.service,
@@ -15,6 +15,7 @@ const transporter = nodemailer.createTransport({
 		pass: mail.password
 	}
 });
+
 /**
  * =======
  * Exports
@@ -134,6 +135,8 @@ function create(request, response) {
 						title: document.title
 					}
 				}).then(notification => {
+          const workspaceLink = `https://clb-staging.herokuapp.com/you/workspace/${workspace}`;
+
 					document.participants.forEach((participant) => {
 						User.oneById(participant)
 							.then(user => {
@@ -141,13 +144,13 @@ function create(request, response) {
 									from: 'hello@clockbeats.com',
 									to: user.email,
 									subject: 'Clockbeats',
-									html: 'You invited to new workspace'
+                  html: `You were invited by ${_user.username} to a new workspace <a href="${workspaceLink}">${workspaceLink}</a>`,
 								};
 
 								transporter.sendMail(mailOptions,
 									(error, info) => { })
 							})
-					})
+					});
 					Socket.notify(notification)
 				}))
 			}
@@ -168,7 +171,7 @@ function update(request, response) {
 		.then(document => {
 			return Argument.count([document.id])
 				.then(counts => {
-					const count = counts.find(argue => document.id === argue.id)
+					const count = counts.find(argue => document.id === argue.id);
 					if (count) {
 						delete count.id;
 						return { ...document, counts: count }
@@ -177,14 +180,14 @@ function update(request, response) {
 				})
 		})
 		.then(document => {
-			const isCreator = document.creator == _user.id;
+			const isCreator = document.creator === _user.id;
 			const stringParticipants = document.participants.map(participant => participant.toString());
 			const newParticipants = _.difference(stringParticipants, oldParticipants);
 			const droppedParticipants = _.difference(oldParticipants, stringParticipants);
-			Socket.updateWorkspacesList(isCreator ? document.participants : [...document.participants, document.creator], { workspace: document })
+			Socket.updateWorkspacesList(isCreator ? document.participants : [...document.participants, document.creator], { workspace: document });
 
 			droppedParticipants.forEach(participant => {
-				Socket.droppedFromWorkspace(participant, document.id)
+				Socket.droppedFromWorkspace(participant, document.id);
 				Notification.create({
 					issuer: document.creator,
 					recipient: participant,
@@ -208,6 +211,8 @@ function update(request, response) {
 						title: document.title
 					}
 				}).then(notification => {
+					const workspaceLink = `https://clb-staging.herokuapp.com/you/workspace/${workspace}`;
+
 					newParticipants.forEach((participant) => {
 						User.oneById(participant)
 							.then(user => {
@@ -215,13 +220,13 @@ function update(request, response) {
 									from: 'hello@clockbeats.com',
 									to: user.email,
 									subject: 'Clockbeats',
-									html: 'You invited to new workspace'
+									html: `You were invited by ${_user.username} to a new workspace <a href="${workspaceLink}">${workspaceLink}</a>`,
 								};
 
 								transporter.sendMail(mailOptions,
 									(error, info) => { })
 							})
-					})
+					});
 					Socket.notify(notification)
 				}))
 			}
