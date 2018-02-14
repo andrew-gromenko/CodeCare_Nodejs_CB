@@ -144,7 +144,7 @@ function create(request, response) {
 									from: 'hello@clockbeats.com',
 									to: user.email,
 									subject: 'Clockbeats',
-                  html: `You were invited by ${_user.username} to a new workspace <a href="${workspaceLink}">${workspaceLink}</a>`,
+                  html: `You were invited by ${_user.username} to a new workspace <a href="${workspaceLink}">${title}</a>`,
 								};
 
 								transporter.sendMail(mailOptions,
@@ -220,7 +220,7 @@ function update(request, response) {
 									from: 'hello@clockbeats.com',
 									to: user.email,
 									subject: 'Clockbeats',
-									html: `You were invited by ${_user.username} to a new workspace <a href="${workspaceLink}">${workspaceLink}</a>`,
+									html: `You were invited by ${_user.username} to a new workspace <a href="${workspaceLink}">${title}</a>`,
 								};
 
 								transporter.sendMail(mailOptions,
