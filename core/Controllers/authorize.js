@@ -1,4 +1,5 @@
 const User = require('../Models/User');
+const UserService = require('../Services/User');
 const Token = require('../Services/Token');
 const { mail } = require('../../config/mail');
 const { paymentToken, paymentPlan } = require('../../config/payment');
@@ -32,71 +33,74 @@ const transporter = nodemailer.createTransport({
 });
 
 function authorize(request, response) {
-
   const { app, body } = request;
   const secret = app.get('SECRET_TOKEN');
   if (!body.token) return response.send(errorHandler({ message: 'payment information not provided' }));
 
-  stripe.customers.create({
-    email: body.email,
-    description: body.email,
-    source: body.token
-  }, (error, customer) => {
-    if (error) {
-      return response.send(errorHandler(error));
-    }
-
-    let subscription = {};
-    if (body.coupon) {
-      subscription = {
-        customer: customer.id,
-        plan: paymentPlan,
-        coupon: body.coupon
-      };
-    } else {
-      subscription = {
-        customer: customer.id,
-        plan: paymentPlan
-      };
-    }
-
-    stripe.subscriptions.create(
-      subscription,
-      (error, subscription) => {
-        if (error) {
-          return response.send(errorHandler(error));
-        }
-
-        const object = {
-          password: body.password,
-          username: body.username,
-          paymentToken: subscription.customer,
-          email: body.email
-        };
-
-        User.create(object)
-          .then(user => {
-            const token = Token.assign(user, secret);
-            const mailOptions = {
-              from: 'hello@clockbeats.com',
-              to: user.email,
-              subject: 'Clockbeats',
-              html: '<a href="http://' + request.headers.host + '/authorize/verify-email?token=' + token + '">Verify link</a>'
-            };
-
-            transporter.sendMail(mailOptions,
-              (error, info) => {
-                if (error) {
-                  return response.send(errorHandler(error))
-                }
-                return response.send({ status: 200, data: { mail: 'successfully' } })
-              })
-          })
-          .catch(error =>
-            response.send(errorHandler(error)));
+  UserService.profile(body.username).then(profile => {
+    response.send(errorHandler({ message: 'Username has already been taken' }));
+  }).catch(err => {
+    stripe.customers.create({
+      email: body.email,
+      description: body.email,
+      source: body.token
+    }, (error, customer) => {
+      if (error) {
+        return response.send(errorHandler(error));
       }
-    )
-  })
+
+      let subscription = {};
+      if (body.coupon) {
+        subscription = {
+          customer: customer.id,
+          plan: paymentPlan,
+          coupon: body.coupon
+        };
+      } else {
+        subscription = {
+          customer: customer.id,
+          plan: paymentPlan
+        };
+      }
+
+      stripe.subscriptions.create(
+        subscription,
+        (error, subscription) => {
+          if (error) {
+            return response.send(errorHandler(error));
+          }
+
+          const object = {
+            password: body.password,
+            username: body.username,
+            paymentToken: subscription.customer,
+            email: body.email
+          };
+
+          User.create(object)
+            .then(user => {
+              const token = Token.assign(user, secret);
+              const mailOptions = {
+                from: 'hello@clockbeats.com',
+                to: user.email,
+                subject: 'Clockbeats',
+                html: '<a href="http://' + request.headers.host + '/authorize/verify-email?token=' + token + '">Verify link</a>'
+              };
+
+              transporter.sendMail(mailOptions,
+                (error, info) => {
+                  if (error) {
+                    return response.send(errorHandler(error))
+                  }
+                  return response.send({ status: 200, data: { mail: 'successfully' } })
+                })
+            })
+            .catch(error =>
+              response.send(errorHandler(error)));
+        }
+      )
+    })
+  });
 }
 
 function verify(req, res) {
