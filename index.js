@@ -3,6 +3,9 @@ const {server, IO} = require('./config/server');
 const routes = require('./core/Routing');
 const socket = require('./core/Services/Socket/handler');
 
+// Schedules weekly email reports
+// const weeklyReports = require('./core/Services/WeeklyReports');
+
 /**
  * =======
  * SOCKETS
@@ -10,8 +13,8 @@ const socket = require('./core/Services/Socket/handler');
  * Connection handler
  * =======
  */
-IO.on('connection', socket);
 
+IO.on('connection', socket);
 
 /**
  * =======
@@ -20,13 +23,14 @@ IO.on('connection', socket);
  * Routing configuration
  * =======
  */
+
 server.get('/', (request, response) => {
 	response
 		.send({
 			name: 'Clockbeats API',
 			version: '2.0.0',
 			developer: {
-				name: 'Serhii Yaitsky2222',
+				name: 'Serhii Yaitsky',
 				email: 'eggcllnt@gmail.com',
 			}
 		});

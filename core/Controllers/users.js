@@ -1,6 +1,6 @@
 const User = require('../Services/User');
 const Notification = require('../Models/Notification');
-const Socket = require('../Services/Socket')
+const Socket = require('../Services/Socket');
 /**
  * =======
  * Exports
