@@ -130,7 +130,7 @@ function verify(req, res) {
           if (error) {
             return res.redirect('https://clb-staging.herokuapp.com/sign-up-failed');
           } else {
-            res.redirect('https://clb-staging.herokuapp.com/sign-up-suceeded');
+            res.redirect('https://clb-staging.herokuapp.com/sign-up-succeeded');
           }
         });
       })
