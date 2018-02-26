@@ -7,27 +7,57 @@ const Room = require('mongoose').model('Room');
 const Notification = require('mongoose').model('Notification');
 const ObjectId = require('mongoose').Types.ObjectId;
 
+const createDates = () => {
+  const currentDate = new Date();
+  currentDate.setHours(0);
+  currentDate.setMinutes(0);
+  currentDate.setSeconds(0);
+  currentDate.setMilliseconds(0);
+
+  const lastWeek = new Date(currentDate.getTime());
+  lastWeek.setDate(lastWeek.getDate() - 7);
+
+  return {
+    start: lastWeek,
+    end: currentDate,
+  };
+};
+
 const transporter = nodemailer.createTransport({
   service: mail.service,
   auth: {
     user: mail.user,
-    pass: mail.password
+    pass: mail.password,
   }
 });
 
-const getNotifications = (user) => {
-  return Notification.find({ type: 'invite', recipient: ObjectId(user.id) })
+const getNotifications = (user, dates) => {
+  return Notification.find({
+    type: 'invite',
+    recipient: ObjectId(user.id),
+    created_at: {
+      $gte: dates.start,
+      $lt: dates.end,
+    },
+  })
     .then(notifications => {
       return notifications.length;
     });
 };
 
-const getMessages = (user) => {
+const getMessages = (user, dates) => {
   return Room.find({ participants: ObjectId(user.id) })
     .then(rooms => {
       return Promise.all(rooms.map(room => {
         return Message
-          .find({ room: room._id, issuer: { $ne: user.id } })
+          .find({
+            room: room._id,
+            issuer: { $ne: user.id },
+            created_at: {
+              $gte: dates.start,
+              $lt: dates.end,
+            },
+          })
           .then(messages => {
             return messages.length;
           });
@@ -37,41 +67,38 @@ const getMessages = (user) => {
     })
 };
 
-const processUser = (user) => {
-  console.log('Processing', user.username, user.id);
+const processUser = (user, dates) => {
+  Promise.all([getNotifications(user, dates), getMessages(user, dates)]).then((res) => {
+    const newWorkspaceInvites = res[0];
+    const newMessages = res[1];
 
-  Promise.all([getNotifications(user), getMessages(user)]).then((res) => {
-    console.log('All:', res);
+    if (!newWorkspaceInvites && !newMessages) return;
+
     const mailOptions = {
       from: 'hello@clockbeats.com',
       to: user.email,
       subject: 'Weekly report!',
       html: '<h3 style="text-align: center" align="center">Weekly report</h3><br>' +
-      '<p>New workspace invites ' + res[0] +'.<br>' +
-      'New messages: ' + res[1] + '.<br>' +
+      (newMessages ? 'New invites: ' + newWorkspaceInvites + '.<br>' : '') +
+      (newMessages ? 'New messages: ' + newMessages + '.<br>' : '') +
       'If you have any questions, please do not hesitate to contact us!<br>' +
       'Best regards, #BreakTheSoundBarriers</p>'
     };
 
-    transporter.sendMail(mailOptions, function (error, info) {
-      if (error) {
-        console.log('1', error);
-      } else {
-        console.log('Successfully sent', info);
-      }
+    transporter.sendMail(mailOptions, function (error) {
+      if (error) console.log(error);
     });
   });
 };
 
 const weeklyReportHandler = () => {
-  console.log('Report!', new Date());
+  const dates = createDates();
 
   User.list().then((users) => {
-    console.log('first user', users[0]);
-    users.forEach(processUser);
+    users.forEach((user) => processUser(user, dates));
   });
 };
 
-const weeklyReport = schedule.scheduleJob('0 * * * * *', weeklyReportHandler);
-
-// weeklyReportHandler();
+// second, minute, hour, day of month, month, day of week
+// Every Monday at 00:00:00
+const weeklyReport = schedule.scheduleJob('0 0 0 * * 0', weeklyReportHandler);
