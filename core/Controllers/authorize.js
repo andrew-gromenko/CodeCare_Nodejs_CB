@@ -1,4 +1,6 @@
 const User = require('../Models/User');
+const mongoose = require('mongoose');
+const UserModel = mongoose.model('User');
 const UserService = require('../Services/User');
 const Token = require('../Services/Token');
 const { mail } = require('../../config/mail');
@@ -28,7 +30,7 @@ const transporter = nodemailer.createTransport({
   service: mail.service,
   auth: {
     user: mail.user,
-    pass: mail.password
+    pass: mail.password,
   }
 });
 
@@ -40,66 +42,75 @@ function authorize(request, response) {
   UserService.profile(body.username).then(profile => {
     response.send(errorHandler({ message: 'Username has already been taken' }));
   }).catch(err => {
-    stripe.customers.create({
-      email: body.email,
-      description: body.email,
-      source: body.token
-    }, (error, customer) => {
-      if (error) {
-        return response.send(errorHandler(error));
-      }
-
-      let subscription = {};
-      if (body.coupon) {
-        subscription = {
-          customer: customer.id,
-          plan: paymentPlan,
-          coupon: body.coupon
-        };
+    UserModel.find({ email: body.email }).then(users => {
+      if (users.length) {
+        response.send(errorHandler({ message: 'Email is already in use' }));
       } else {
-        subscription = {
-          customer: customer.id,
-          plan: paymentPlan
-        };
-      }
-
-      stripe.subscriptions.create(
-        subscription,
-        (error, subscription) => {
+        stripe.customers.create({
+          email: body.email,
+          description: body.email,
+          source: body.token
+        }, (error, customer) => {
           if (error) {
             return response.send(errorHandler(error));
           }
 
-          const object = {
-            password: body.password,
-            username: body.username,
-            paymentToken: subscription.customer,
-            email: body.email
-          };
+          let subscription = {};
+          if (body.coupon) {
+            subscription = {
+              customer: customer.id,
+              plan: paymentPlan,
+              coupon: body.coupon
+            };
+          } else {
+            subscription = {
+              customer: customer.id,
+              plan: paymentPlan
+            };
+          }
 
-          User.create(object)
-            .then(user => {
-              const token = Token.assign(user, secret);
-              const mailOptions = {
-                from: 'hello@clockbeats.com',
-                to: user.email,
-                subject: 'Clockbeats',
-                html: '<a href="http://' + request.headers.host + '/authorize/verify-email?token=' + token + '">Verify link</a>'
-              };
+          stripe.subscriptions.create(
+            subscription,
+            (error, subscription) => {
+              if (error) {
+                return response.send(errorHandler(error));
+              } else {
+                const object = {
+                  password: body.password,
+                  username: body.username,
+                  paymentToken: subscription.customer,
+                  email: body.email
+                };
 
-              transporter.sendMail(mailOptions,
-                (error, info) => {
-                  if (error) {
-                    return response.send(errorHandler(error))
-                  }
-                  return response.send({ status: 200, data: { mail: 'successfully' } })
-                })
-            })
-            .catch(error =>
-              response.send(errorHandler(error)));
-        }
-      )
-    })
+                // If email service will fail, the user will be still created, but no verification link will be provided
+                User.create(object)
+                  .then(user => {
+                    const token = Token.assign(user, secret);
+                    const mailOptions = {
+                      from: 'hello@clockbeats.com',
+                      to: user.email,
+                      subject: 'Clockbeats',
+                      html: '<a href="http://' + request.headers.host + '/authorize/verify-email?token=' + token + '">Verify link</a>'
+                    };
+
+                    transporter.sendMail(mailOptions,
+                      (error, info) => {
+                        if (error) {
+                          return response.send(errorHandler(error))
+                        }
+                        return response.send({ status: 200, data: { mail: 'successfully' } })
+                      })
+                  })
+                  .catch(error => {
+                    console.log('User create catch', error);
+                    response.send(errorHandler(error));
+                  });
+              }
+            }
+          )
+        })
+      }
+    });
   });
 }
 
