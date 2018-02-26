@@ -21,7 +21,7 @@ router.route('/:workspace')
 	.put(workspaces.update)
 
 	// Archive/Undo archive workspace entity
-	.patch(workspaces.archive)
+	.patch(workspaces.archive);
 
 // Remove workspace entity
 router.route('/:workspace/remove').post(workspaces.remove);
@@ -66,6 +66,6 @@ router.route('/argues/:id/comments')
 	.post(comments.create)
 
 	//Delete argue comment
-	.delete(comments.remove)
+	.delete(comments.remove);
 
 module.exports = router;

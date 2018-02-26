@@ -49,7 +49,7 @@ function authorize(request, response) {
         stripe.customers.create({
           email: body.email,
           description: body.email,
-          source: body.token
+          source: body.token,
         }, (error, customer) => {
           if (error) {
             return response.send(errorHandler(error));
@@ -60,12 +60,12 @@ function authorize(request, response) {
             subscription = {
               customer: customer.id,
               plan: paymentPlan,
-              coupon: body.coupon
+              coupon: body.coupon,
             };
           } else {
             subscription = {
               customer: customer.id,
-              plan: paymentPlan
+              plan: paymentPlan,
             };
           }
 
@@ -79,7 +79,7 @@ function authorize(request, response) {
                   password: body.password,
                   username: body.username,
                   paymentToken: subscription.customer,
-                  email: body.email
+                  email: body.email,
                 };
 
                 // If email service will fail, the user will be still created, but no verification link will be provided
@@ -90,15 +90,16 @@ function authorize(request, response) {
                       from: 'hello@clockbeats.com',
                       to: user.email,
                       subject: 'Clockbeats',
-                      html: '<a href="http://' + request.headers.host + '/authorize/verify-email?token=' + token + '">Verify link</a>'
+                      html: '<a href="http://' + request.headers.host + '/authorize/verify-email?token=' + token + '">Verify link</a>',
                     };
 
                     transporter.sendMail(mailOptions,
                       (error, info) => {
                         if (error) {
-                          return response.send(errorHandler(error))
+                          return response.send(errorHandler(error));
+                        } else {
+                          return response.send({ status: 200, data: { mail: 'successfully' } });
                         }
-                        return response.send({ status: 200, data: { mail: 'successfully' } })
                       })
                   })
                   .catch(error => {
