@@ -64,7 +64,6 @@ function successHandler(data) {
 function one(request, response) {
   const { params: { workspace } } = request;
 
-  // TODO: Should return workspace with: 10 arguments > 5 comments > 0 replies
   Workspace.one(workspace)
     .then(document =>
       response.send(successHandler({ workspace: document })))
@@ -109,10 +108,22 @@ function list(request, response) {
       response.send(errorHandler(error)));
 }
 
+const sendEmailForWorkspaceInvite = (user, _user, title, workspaceLink) => {
+  const mailOptions = {
+    from: 'hello@clockbeats.com',
+    to: user.email,
+    subject: 'Clockbeats',
+    html: `You were invited by ${_user.username} to a new workspace <a href="${workspaceLink}">${title}</a>`,
+  };
+
+  transporter.sendMail(mailOptions);
+};
+
 /**
  * Create Workspace
  *
  * */
+
 function create(request, response) {
   const {
     _user,
@@ -131,7 +142,7 @@ function create(request, response) {
           User.oneById(participant).then(user => {
             if (user.blacklist.find(userId => userId.toString() === _user.id)) return;
 
-            Notification.create({
+            return Notification.create({
               issuer: document.creator,
               recipient: participant,
               type: 'invite',
@@ -140,16 +151,7 @@ function create(request, response) {
                 title: document.title,
               }
             }).then((notification) => {
-              const mailOptions = {
-                from: 'hello@clockbeats.com',
-                to: user.email,
-                subject: 'Clockbeats',
-                html: `You were invited by ${_user.username} to a new workspace <a href="${workspaceLink}">${title}</a>`,
-              };
-
-              transporter.sendMail(mailOptions, (error, info) => {
-              });
-
+              sendEmailForWorkspaceInvite(user, _user, workspaceLink, title);
               Socket.notify(notification);
             });
           });
@@ -164,21 +166,23 @@ function create(request, response) {
 
 function update(request, response) {
   const {
-    body: { title, description, start, end, participants, oldParticipants },
+    body: { title, oldParticipants },
     params: { workspace },
     _user
   } = request;
 
-  Workspace.update(workspace, { ...request.body, title, description, start, end, participants, oldParticipants })
+  const workspaceLink = `https://clb-staging.herokuapp.com/you/workspace/${workspace}`;
+
+  Workspace.update(workspace, { ...request.body })
     .then(document => {
       return Argument.count([document.id])
         .then(counts => {
           const count = counts.find(argue => document.id === argue.id);
           if (count) {
             delete count.id;
-            return { ...document, counts: count }
+            return { ...document, counts: count };
           }
-          return { ...document, counts: { likes: 0, votes: 0, argues: 0 } }
+          return { ...document, counts: { likes: 0, votes: 0, argues: 0 } };
         })
     })
     .then(document => {
@@ -189,49 +193,44 @@ function update(request, response) {
       Socket.updateWorkspacesList(isCreator ? document.participants : [...document.participants, document.creator], { workspace: document });
 
       droppedParticipants.forEach(participant => {
+        User.oneById(participant).then(user => {
+          if (user.blacklist.find(userId => userId.toString() === _user.id)) return;
+
+          return Notification.create({
+            issuer: document.creator,
+            recipient: participant,
+            type: 'drop',
+            data: {
+              id: document.id,
+              title: document.title,
+            }
+          }).then(notification => {
+            Socket.notify(notification);
+          })
+        });
+
         Socket.droppedFromWorkspace(participant, document.id);
-        Notification.create({
-          issuer: document.creator,
-          recipient: participant,
-          type: 'drop',
-          data: {
-            id: document.id,
-            title: document.title
-          }
-        }).then(notification => {
-          Socket.notify(notification)
-        })
       });
 
-      if (document.participants.length > 0) {
-        newParticipants.forEach(participant => Notification.create({
-          issuer: document.creator,
-          recipient: participant,
-          type: 'invite',
-          data: {
-            id: document.id,
-            title: document.title
-          }
-        }).then(notification => {
-          const workspaceLink = `https://clb-staging.herokuapp.com/you/workspace/${workspace}`;
+      if (document.participants.length) {
+        newParticipants.forEach(participant => {
+          User.oneById(participant).then(user => {
+            if (user.blacklist.find(userId => userId.toString() === _user.id)) return;
 
-          newParticipants.forEach((participant) => {
-            User.oneById(participant)
-              .then(user => {
-                const mailOptions = {
-                  from: 'hello@clockbeats.com',
-                  to: user.email,
-                  subject: 'Clockbeats',
-                  html: `You were invited by ${_user.username} to a new workspace <a href="${workspaceLink}">${title}</a>`,
-                };
-
-                transporter.sendMail(mailOptions,
-                  (error, info) => {
-                  })
-              })
+            return Notification.create({
+              issuer: document.creator,
+              recipient: participant,
+              type: 'invite',
+              data: {
+                id: document.id,
+                title: document.title,
+              }
+            }).then(notification => {
+              sendEmailForWorkspaceInvite(user, _user, title, workspaceLink);
+              Socket.notify(notification);
+            })
           });
-          Socket.notify(notification)
-        }))
+        });
       }
 
       if (!isCreator) {
@@ -241,14 +240,14 @@ function update(request, response) {
           type: 'leave',
           data: {
             id: document.id,
-            title: document.title
+            title: document.title,
           }
         }).then(notification => {
-          Socket.notify(notification)
+          Socket.notify(notification);
         })
       }
 
-      return response.send(successHandler({ workspace: document }))
+      return response.send(successHandler({ workspace: document }));
     })
     .catch(error =>
       response.send(errorHandler(error)));

@@ -1,4 +1,5 @@
 const Notification = require('../Models/Notification');
+
 /**
  * =======
  * Exports
@@ -6,11 +7,10 @@ const Notification = require('../Models/Notification');
  */
 
 module.exports = {
-    list,
-    readMany,
-    read
+  list,
+  readMany,
+  read,
 };
-
 
 /**
  * =======
@@ -19,21 +19,20 @@ module.exports = {
  */
 
 function errorHandler(error) {
-    return {
-        status: 400,
-        error: {
-            message: error.message,
-        },
-    };
+  return {
+    status: 400,
+    error: {
+      message: error.message,
+    },
+  };
 }
 
 function successHandler(data) {
-    return {
-        status: 200,
-        data,
-    };
+  return {
+    status: 200,
+    data,
+  };
 }
-
 
 /**
  * =======
@@ -42,39 +41,39 @@ function successHandler(data) {
  */
 
 function list(request, response) {
-    const { _user } = request;
+  const { _user } = request;
 
-    Notification.list(_user.id)
-        .then(notifications => {
-            return response.send(successHandler(notifications))
-        })
-        .catch(error =>
-            response.send(errorHandler(error)));
+  Notification.list(_user.id)
+    .then(notifications => {
+      return response.send(successHandler(notifications))
+    })
+    .catch(error =>
+      response.send(errorHandler(error)));
 }
 
 function readMany(request, response) {
-    const {
-         _user,
-        params: {type},
-    } = request;
+  const {
+    _user,
+    params: { type },
+  } = request;
 
-    Notification.readMany(_user.id, type)
-        .then(_ => {
-            return response.send(successHandler(type))
-        })
-        .catch(error =>
-            response.send(errorHandler(error)));
+  Notification.readMany(_user.id, type)
+    .then(_ => {
+      return response.send(successHandler(type))
+    })
+    .catch(error =>
+      response.send(errorHandler(error)));
 }
 
 function read(request, response) {
-    const {
-        params: {notification}
-    } = request
-    
-    Notification.read(notification)
-        .then(notifications => {
-            return response.send(successHandler(notifications))
-        })
-        .catch(error =>
-            response.send(errorHandler(error)));
+  const {
+    params: { notification }
+  } = request;
+
+  Notification.read(notification)
+    .then(notifications => {
+      return response.send(successHandler(notifications))
+    })
+    .catch(error =>
+      response.send(errorHandler(error)));
 }
