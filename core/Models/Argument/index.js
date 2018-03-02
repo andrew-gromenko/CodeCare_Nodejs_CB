@@ -76,8 +76,8 @@ function addComment(argueId, comment) {
 				if (!argument)
 					return reject(new Error('No argument.'));
 
-				if (argument.comments.length >= 5)
-					argument.comments.splice(0, 1);
+				// TODO: is this intentional? Add argument.commentsCount -- if yes.
+				if (argument.comments.length >= 5) argument.comments.splice(0, 1);
 
 				argument.comments.push(comment.id);
 				argument.commentsCount += 1;
@@ -94,7 +94,7 @@ function removeComment(argueId, comments) {
 				if (!argument)
 					return reject(new Error('No argument.'));
 					
-				argument.comments = comments.map(comment => comment.id).slice(comments.length - 5, comments.length)
+				argument.comments = comments.map(comment => comment.id).slice(comments.length - 5, comments.length);
 				argument.commentsCount -= 1;
 				argument.save()
 					.then(_ => {
