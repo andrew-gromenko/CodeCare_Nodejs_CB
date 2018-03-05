@@ -1,12 +1,11 @@
 const User = require('../Models/User');
 const mongoose = require('mongoose');
 const UserModel = mongoose.model('User');
-const UserService = require('../Services/User');
+const UserService = require('../Services/User'); 
 const Token = require('../Services/Token');
-const { mail } = require('../../config/mail');
 const { paymentToken, paymentPlan } = require('../../config/payment');
 const stripe = require('stripe')(paymentToken);
-const nodemailer = require('nodemailer');
+const { send } = require('../Services/Email')
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 
@@ -25,14 +24,6 @@ function successHandler(data) {
     data,
   };
 }
-
-const transporter = nodemailer.createTransport({
-  service: mail.service,
-  auth: {
-    user: mail.user,
-    pass: mail.password,
-  }
-});
 
 function authorize(request, response) {
   const { app, body } = request;
@@ -87,34 +78,28 @@ function authorize(request, response) {
                   .then(user => {
                     const token = Token.assign(user, secret);
                     const mailOptions = {
-                      from: 'hello@clockbeats.com',
                       to: user.email,
-                      subject: 'Clockbeats',
-                      html: '<a href="http://' + request.headers.host + '/authorize/verify-email?token=' + token + '">Verify link</a>',
+                      subject: 'Verify your Clockbeats account',
+                      body: '<a href="http://' + request.headers.host + '/authorize/verify-email?token=' + token + '">Verify link</a>',
                     };
-
-                    transporter.sendMail(mailOptions,
-                      (error, info) => {
-                        if (error) {
-                          return response.send(errorHandler(error));
-                        } else {
-                          return response.send({ status: 200, data: { mail: 'successfully' } });
-                        }
-                      })
+                    send(mailOptions, (err, res) => {
+                      if (err) return response.send(errorHandler(error));
+                      return response.send({ status: 200, data: { mail: 'successfully' } });
+                    })
                   })
                   .catch(error => {
                     console.log('User create catch', error);
                     response.send(errorHandler(error));
                   });
               }
-            }
+            } 
           )
         })
       }
     });
   });
 }
-
+ 
 function verify(req, res) {
   const { app } = req;
   const secret = app.get('SECRET_TOKEN');
@@ -125,10 +110,9 @@ function verify(req, res) {
     User.update(decoded.id, { verified: true })
       .then(user => {
         const mailOptions = {
-          from: 'hello@clockbeats.com',
           to: decoded.email,
           subject: 'Hey! You are a Clockbeater now!',
-          html: '<h3 style="text-align: center" align="center">Dear “' + user.username + '”,</h3><br>' +
+          body: '<h3 style="text-align: center" align="center">Dear “' + user.username + '”,</h3><br>' +
           '<p>thank you for signing up and join our fam!! From now on you can start to share your projects and start your work.' +
           'We are thrilled to welcome you to Clockbeats, the new generation music community.<br>' +
           'LOG IN here : <a href="https://clb-staging.herokuapp.com/sign-in">https://clb-staging.herokuapp.com/sign-in</a><br>' +
@@ -137,14 +121,10 @@ function verify(req, res) {
           'If you have any questions, please do not hesitate to contact us!<br>' +
           'Best regards, #BreakTheSoundBarriers</p>'
         };
-
-        transporter.sendMail(mailOptions, function (error, info) {
-          if (error) {
-            return res.redirect('https://clb-staging.herokuapp.com/sign-up-failed');
-          } else {
-            res.redirect('https://clb-staging.herokuapp.com/sign-up-succeeded');
-          }
-        });
+        send(mailOptions, (err, info) => {
+          if (err) res.redirect('https://clb-staging.herokuapp.com/sign-up-failed')
+          return res.redirect('https://clb-staging.herokuapp.com/sign-up-succeeded');
+        })
       })
       .catch(error => errorHandler(error))
   });
@@ -162,19 +142,14 @@ function verifyEmail(request, response) {
       }, secret, { expiresIn: '1h' });
 
       const mailOptions = {
-        from: 'hello@clockbeats.com',
         to: user.email,
         subject: 'Clockbeats',
-        html: '<a href="https://clb-staging.herokuapp.com/restore?token=' + token + '">Restore password link</a>'
+        body: '<a href="https://clb-staging.herokuapp.com/restore?token=' + token + '">Restore password link</a>'
       };
-
-      transporter.sendMail(mailOptions,
-        (error, info) => {
-          if (error) {
-            return response.send(errorHandler(error))
-          }
-          return response.send({ status: 200, data: { mail: 'Succeeded' } })
-        })
+      send(mailOptions, (err, res) => {
+        if (err) response.send(errorHandler(error))
+        return response.send({ status: 200, data: { mail: 'Succeeded' } })
+      })
     })
     .catch(error => response.send(errorHandler(error)));
 }
@@ -191,19 +166,14 @@ function restorePassword(request, response) {
         return User.update(decoded.id, { password })
           .then(user => {
             const mailOptions = {
-              from: 'hello@clockbeats.com',
               to: decoded.email,
               subject: 'Clockbeats',
-              html: 'New password :' + body.password + '.'
+              body: 'New password :' + body.password + '.'
             };
-
-            transporter.sendMail(mailOptions,
-              (error, info) => {
-                if (error) {
-                  return response.send(errorHandler(error))
-                }
-                return response.send({ status: 200, data: 'Succeeded' })
-              })
+            send(mailOptions, (err, res) => {
+              if (err) response.send(errorHandler(error))
+              return response.send({ status: 200, data: { mail: 'Succeeded' } })
+            })
           })
       })
       .catch(error => errorHandler(error))

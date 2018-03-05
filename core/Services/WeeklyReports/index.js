@@ -1,11 +1,10 @@
 const schedule = require('node-schedule');
-const nodemailer = require('nodemailer');
-const { mail } = require('../../../config/mail');
 const User = require('../../Models/User');
 const Message = require('mongoose').model('Message');
 const Room = require('mongoose').model('Room');
 const Notification = require('mongoose').model('Notification');
 const ObjectId = require('mongoose').Types.ObjectId;
+const { send } = require('../../Services/Email')
 
 const createDates = () => {
   const currentDate = new Date();
@@ -22,14 +21,6 @@ const createDates = () => {
     end: currentDate,
   };
 };
-
-const transporter = nodemailer.createTransport({
-  service: mail.service,
-  auth: {
-    user: mail.user,
-    pass: mail.password,
-  }
-});
 
 const getNotifications = (user, dates) => {
   return Notification.find({
@@ -75,18 +66,18 @@ const processUser = (user, dates) => {
     if (!newWorkspaceInvites && !newMessages) return;
 
     const mailOptions = {
-      from: 'hello@clockbeats.com',
       to: user.email,
       subject: 'Weekly report!',
-      html: '<h3 style="text-align: center" align="center">Weekly report</h3><br>' +
+      body: '<h3 style="text-align: center" align="center">Weekly report</h3><br>' +
       (newMessages ? 'New invites: ' + newWorkspaceInvites + '.<br>' : '') +
       (newMessages ? 'New messages: ' + newMessages + '.<br>' : '') +
       'If you have any questions, please do not hesitate to contact us!<br>' +
       'Best regards, #BreakTheSoundBarriers</p>'
     };
 
-    transporter.sendMail(mailOptions, function (error) {
-      if (error) console.log(error);
+    send(mailOptions, (err, res) => {
+      if (err) return console.log(res);
+      return
     });
   });
 };

@@ -6,15 +6,7 @@ const Invite = require('../Models/Invite');
 const Socket = require('../Services/Socket');
 const Notification = require('../Models/Notification');
 const User = require('../Models/User');
-const { mail } = require('../../config/mail');
-const nodemailer = require('nodemailer');
-const transporter = nodemailer.createTransport({
-  service: mail.service,
-  auth: {
-    user: mail.user,
-    pass: mail.password,
-  }
-});
+const { send } = require('../Services/Email')
 
 /**
  * =======
@@ -110,13 +102,11 @@ function list(request, response) {
 
 const sendEmailForWorkspaceInvite = (user, _user, title, workspaceLink) => {
   const mailOptions = {
-    from: 'hello@clockbeats.com',
     to: user.email,
     subject: 'Clockbeats',
-    html: `You were invited by ${_user.username} to a new workspace <a href="${workspaceLink}">${title}</a>`,
+    body: `You were invited by ${_user.username} to a new workspace <a href="${workspaceLink}">${title}</a>`,
   };
-
-  transporter.sendMail(mailOptions);
+  send(mailOptions)
 };
 
 /**
