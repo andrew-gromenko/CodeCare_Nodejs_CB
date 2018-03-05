@@ -68,4 +68,8 @@ router.route('/argues/:id/comments')
 	//Delete argue comment
 	.delete(comments.remove);
 
+router.route('/argues/comments/:commentId')
+  // Update comment entity
+  .put(comments.update);
+
 module.exports = router;

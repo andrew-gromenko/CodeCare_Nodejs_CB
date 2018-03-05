@@ -5,7 +5,7 @@ const chats = require('./chats');
 const cloudbeats = require('./cloudbeats');
 const workspaces = require('./workspaces');
 const projects = require('./projects');
-const notifications = require('./notifications')
+const notifications = require('./notifications');
 
 router
 	.use('/', self)
