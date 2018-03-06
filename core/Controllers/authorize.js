@@ -5,7 +5,7 @@ const UserService = require('../Services/User');
 const Token = require('../Services/Token');
 const { paymentToken, paymentPlan } = require('../../config/payment');
 const stripe = require('stripe')(paymentToken);
-const { send } = require('../Services/Email')
+const { send, subscribeToWelcomeNewsletter } = require('../Services/Email')
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 
@@ -95,7 +95,7 @@ function authorize(request, response) {
             } 
           )
         })
-      }
+      } 
     });
   });
 }
@@ -123,6 +123,7 @@ function verify(req, res) {
         };
         send(mailOptions, (err, info) => {
           if (err) res.redirect('https://clb-staging.herokuapp.com/sign-up-failed')
+          subscribeToWelcomeNewsletter(user.username, decoded.email)
           return res.redirect('https://clb-staging.herokuapp.com/sign-up-succeeded');
         })
       })

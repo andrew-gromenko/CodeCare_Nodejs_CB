@@ -10,3 +10,5 @@ desktop.ini
 
 # temp files/folders to hold code which should be omitted
 **/**/__*
+
+playground.js
