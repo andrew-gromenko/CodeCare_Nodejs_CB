@@ -100,7 +100,7 @@ function list(request, response) {
       response.send(errorHandler(error)));
 }
 
-const sendEmailForWorkspaceInvite = (user, _user, title, workspaceLink) => {
+const sendEmailForWorkspaceInvite = (user, _user, workspaceLink, title) => {
   const mailOptions = {
     to: user.email,
     subject: 'Clockbeats',
@@ -123,7 +123,7 @@ function create(request, response) {
   Workspace.create({ creator: _user.id, title, description, start, end, participants })
     .then(document => {
       const workspace = { workspace: { ...document, counts: { likes: 0, votes: 0, argues: 0 } } };
-      const workspaceLink = `https://clb-staging.herokuapp.com/you/workspace/${workspace}`;
+      const workspaceLink = `https://clb-staging.herokuapp.com/you/workspace/${workspace.workspace.title}`;
 
       Socket.updateWorkspacesList(participants, workspace);
 
@@ -141,6 +141,7 @@ function create(request, response) {
                 title: document.title,
               }
             }).then((notification) => {
+              console.log('sendEmail', workspaceLink, title);
               sendEmailForWorkspaceInvite(user, _user, workspaceLink, title);
               Socket.notify(notification);
             });
@@ -216,7 +217,7 @@ function update(request, response) {
                 title: document.title,
               }
             }).then(notification => {
-              sendEmailForWorkspaceInvite(user, _user, title, workspaceLink);
+              sendEmailForWorkspaceInvite(user, _user, workspaceLink, title);
               Socket.notify(notification);
             })
           });
