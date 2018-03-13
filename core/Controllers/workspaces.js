@@ -7,6 +7,7 @@ const Socket = require('../Services/Socket');
 const Notification = require('../Models/Notification');
 const User = require('../Models/User');
 const { send } = require('../Services/Email')
+const ObjectId = require('mongoose').Types.ObjectId;
 
 /**
  * =======
@@ -176,7 +177,7 @@ function update(request, response) {
         })
     })
     .then(document => {
-      const isCreator = document.creator === _user.id;
+      const isCreator = document.creator.equals(_user.id);
       const stringParticipants = document.participants.map(participant => participant.toString());
       const newParticipants = _.difference(stringParticipants, oldParticipants);
       const droppedParticipants = _.difference(oldParticipants, stringParticipants);
