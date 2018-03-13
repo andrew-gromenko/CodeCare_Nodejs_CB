@@ -86,7 +86,7 @@ function create(request, response) {
     .then(workspace => {
       return Argument.create({ issuer: _user.id, workspace: workspace.id, body, media })
         .then(argue => {
-          if (_user.id !== workspace.creator._id) {
+          if (!workspace.creator._id.equals(_user.id)) {
             return Notification.create({
               issuer: _user.id,
               recipient: workspace.creator._id,
