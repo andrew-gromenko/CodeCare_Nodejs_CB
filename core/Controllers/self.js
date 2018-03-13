@@ -45,7 +45,7 @@ function successHandler(data) {
 
 function self(request, response) {
 	const { _user } = request;
-
+	
 	User.self(_user.id)
 		.then(user => {
 			return response.send(successHandler({ user }))

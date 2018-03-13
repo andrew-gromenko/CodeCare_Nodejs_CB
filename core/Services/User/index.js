@@ -90,7 +90,12 @@ function discard(user) {
     .then(selfSelector);
 }
 
-function self(id) {
+async function self(id) {
+  const removed = await User.removed(id);
+
+  if (removed)
+    return selfSelector(removed);
+  
   return User.oneById(id)
     .then(selfSelector);
 }

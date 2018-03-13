@@ -30,7 +30,9 @@ module.exports = {
 	follow,
 	unfollow,
 	followers,
-	view
+	view,
+
+	removed
 };
 
 /**
@@ -193,6 +195,19 @@ function view(id) {
 			return model
 		});
 }
+
+async function removed(id) {
+	const model = await User.findById(ObjectId(id));
+
+	if (model.__removed)
+		return {
+			removed: true,
+			...prepare(model)
+		};	
+	
+	return null;
+}
+
 // function followers(id) {
 // 	return User
 // 		.findById(ObjectId(id))

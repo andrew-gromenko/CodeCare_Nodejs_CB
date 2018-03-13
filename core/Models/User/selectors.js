@@ -19,7 +19,7 @@ function userSelector(user) {
 
 function selfSelector(user) {
 	const picked = omit(user, ['followers', 'following']);
-
+	
 	return {
 		...picked,
 		counts: {
