@@ -34,13 +34,15 @@ module.exports = {
  * =======
  */
 
-function list(modelId, query) {
-	// TODO: should support query
+function list(modelId, query = {}) {
+	const skip = +query.offset || 0;
+	const limit = +query.limit || 10;
+
 	return Comment
-		.find({ belongs_to: modelId })
+		.find({ belongs_to: modelId }).sort('-created_at').skip(skip).limit(limit)
 		.populate('replied_to')
 		.then(models => {
-			return models.map(model => {
+			return models.sort((a,b) => a.created_at - b.created_at).map(model => {
 				model = prettify(model);
 
 				if (model.replied_to)

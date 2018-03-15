@@ -30,10 +30,6 @@ const Argument = new Schema({
 		default: {}
 	},
 
-	comments: [{
-		type: Schema.ObjectId, ref: 'Comment',
-	}],
-
 	commentsCount: {
 		type: Number,
 		default: 0

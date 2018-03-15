@@ -72,11 +72,12 @@ function one(request, response) {
 function list(request, response) {
   const {
     params: { id },
+    query
   } = request;
 
   // TODO: should can take `query` and return list base on it (filter/sort/limit)
   // TODO: should can return list of media files (select)
-  Comment.list(id)
+  Comment.list(id, query)
     .then(comments =>
       response.send(successHandler({ id, comments })))
     .catch(error =>
