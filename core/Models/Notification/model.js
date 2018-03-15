@@ -19,7 +19,8 @@ const Notification = new Schema({
 			'ws-comment',
 			'follow',
 			'unfollow',
-			'like'
+			'like',
+			'archive',
 		],
 	},
 

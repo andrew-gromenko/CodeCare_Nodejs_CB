@@ -163,8 +163,15 @@ function update(request, response) {
   } = request;
 
   const workspaceLink = `https://clb-staging.herokuapp.com/you/workspace/${workspace}`;
+  let archived;
+  let workspaceTitle;
 
-  Workspace.update(workspace, { ...request.body })
+  Workspace.one(workspace)
+    .then(w => {
+      archived = w.archived ? true : false;
+      workspaceTitle = w.title;
+      return Workspace.update(workspace, { ...request.body })
+    })
     .then(document => {
       return Argument.count([document.id])
         .then(counts => {
@@ -238,6 +245,39 @@ function update(request, response) {
         })
       }
 
+      if (document.archive !== archived) {
+        document.participants.forEach(participant => {
+          User.oneById(participant).then(() => {
+            return Notification.create({
+              issuer: document.creator,
+              recipient: participant,
+              type: 'archive',
+              data: {
+                id: document.id,
+                title: document.title,
+                archived: !archived ? 'has archived workspace ' + workspaceTitle : 'has unarchived workspace' + workspaceTitle,
+              }
+            }).then(notification => {
+              Socket.notify(notification);
+            })
+          });
+        });
+
+        Notification.create({
+          issuer: _user.id,
+          recipient: document.creator,
+          type: 'archive',
+          data: {
+            id: document.id,
+            title: document.title,
+            archived: !archived ? 'has archived workspace ' + workspaceTitle : 'has unarchived workspace ' + workspaceTitle,
+          }
+        }).then(notification => {
+          Socket.notify(notification);
+        })
+
+      }
+
       return response.send(successHandler({ workspace: document }));
     })
     .catch(error =>
@@ -265,8 +305,7 @@ function archive(request, response) {
   } = request;
 
   Workspace.archive(workspace, archive)
-    .then(document =>
-      response.send(successHandler({ workspace: document })))
+    .then(document => response.send(successHandler({ workspace: document })))
     .catch(error =>
       response.send(errorHandler(error)));
 }
