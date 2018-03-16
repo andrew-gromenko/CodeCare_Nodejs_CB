@@ -113,68 +113,6 @@ function create(request, response) {
                   })
                 });
 
-              // if (replied_to) {
-              //   Notification.create({
-              //     issuer: comment.issuer,
-              //     recipient: comment.replied_to.issuer,
-              //     type: 'reply',
-              //     data: {
-              //       id: workspace.id,
-              //       title: argument.body,
-              //       workspace: workspace.title
-              //     }
-              //   }).then(notification => {
-              //     Socket.notify(notification)
-              //   })
-              // }
-              //
-              // if (workspace.creator._id == argument.issuer) {
-              //   if (_user.id != workspace.creator._id && (comment.replied_to == null || workspace.creator._id != comment.replied_to.issuer)) {
-              //     Notification.create({
-              //       issuer: _user.id,
-              //       recipient: workspace.creator._id,
-              //       type: 'argues-comment',
-              //       data: {
-              //         id: workspace.id,
-              //         title: argument.body,
-              //         workspace: workspace.title
-              //       }
-              //     }).then(notification => {
-              //       Socket.notify(notification)
-              //     })
-              //   }
-              // } else {
-              //   if (_user.id != workspace.creator._id && (comment.replied_to == null || workspace.creator._id != comment.replied_to.issuer)) {
-              //     Notification.create({
-              //       issuer: _user.id,
-              //       recipient: workspace.creator._id,
-              //       type: 'ws-comment',
-              //       data: {
-              //         id: workspace.id,
-              //         title: argument.body,
-              //         workspace: workspace.title
-              //       }
-              //     }).then(notification => {
-              //       Socket.notify(notification)
-              //     })
-              //   }
-              //
-              //   if (_user.id != argument.issuer && (comment.replied_to == null || argument.issuer != comment.replied_to.issuer)) {
-              //     Notification.create({
-              //       issuer: _user.id,
-              //       recipient: argument.issuer,
-              //       type: 'argues-comment',
-              //       data: {
-              //         id: workspace.id,
-              //         title: argument.body,
-              //         workspace: workspace.title
-              //       }
-              //     }).then(notification => {
-              //       Socket.notify(notification)
-              //     })
-              //   }
-              // }
-
               Socket.updateArgueComments(workspace.id, _user.id);
               return response.send(successHandler({ comment }))
             })
