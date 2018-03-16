@@ -86,25 +86,26 @@ function create(request, response) {
     .then(workspace => {
       return Argument.create({ issuer: _user.id, workspace: workspace.id, body, media })
         .then(argue => {
-          if (!workspace.creator._id.equals(_user.id)) {
-            return Notification.create({
-              issuer: _user.id,
-              recipient: workspace.creator._id,
-              type: 'argues',
-              data: {
-                id: workspace.id,
-                title: argue.body,
-                workspace: workspace.title
-              }
-            }).then(notification => {
-              Socket.notify(notification);
-              Socket.updateArguesList(workspace.id, _user.id);
-              response.send(successHandler({ argue }))
-            })
-          } else {
+          const notifiedUsers = workspace.participants.map(p=>p).concat([workspace.creator])
+            .filter(u=>u._id != _user.id);
+
+          notifiedUsers.forEach(participant => {
+                return Notification.create({
+                issuer: _user.id,
+                recipient: participant._id,
+                type: 'argues',
+                data: {
+                  id: workspace.id,
+                  title: argue.body,
+                  workspace: workspace.title
+                }
+              }).then(notification => {
+                Socket.notify(notification);
+              })
+            });
+
             Socket.updateArguesList(workspace.id, _user.id);
             return response.send(successHandler({ argue }));
-          }
         })
     }).catch(error =>
     response.send(errorHandler(error)));
